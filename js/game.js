@@ -9,6 +9,7 @@ import { Agent, nextGeneration } from './ai.js';
 const POPULATION_SIZE = 50;
 
 export class Game {
+    sharedShapeQueue = [];
     constructor() {
         this.state = new GameState();
         this.isPlayerMode = true;
@@ -179,13 +180,13 @@ export class Game {
     }
 
     runNextGeneration() {
-        // Generate one set of shapes for all agents
-        const sharedShapes = this.generateSimShapes();
+        // Generate shared shape queue for all agents
+        this.sharedShapeQueue = this.generateSimShapes();
         this.activeGames = this.population.map(agent => ({
             agent,
             grid: Array(BOARD_SIZE * BOARD_SIZE).fill(null),
             score: 0,
-            shapes: sharedShapes.map(s => ({ ...s })), // Deep copy for each agent
+            shapes: this.sharedShapeQueue.map(s => ({ ...s })), // Deep copy for each agent
             isDone: false,
             choiceLevel: 1
         }));
@@ -205,6 +206,16 @@ export class Game {
             if (game.isDone) return;
             aliveCount++;
             allDone = false;
+
+            // Ensure all agents use the same shape at each choice level
+            if (game.shapes.length === 0) {
+                // If shared queue is exhausted, generate a new shared shape and add to all agents
+                const newShape = this.generateSimShapes()[0];
+                this.sharedShapeQueue.push(newShape);
+                this.activeGames.forEach(g => {
+                    if (!g.isDone) g.shapes.push({ ...newShape });
+                });
+            }
 
             const bestMove = game.agent.findBestMove(game.grid, game.shapes);
 
@@ -233,9 +244,6 @@ export class Game {
 
             game.shapes = game.shapes.filter(s => s !== bestMove.shapeData);
             game.choiceLevel++;
-            if (game.shapes.length === 0) {
-                game.shapes = this.generateSimShapes();
-            }
         });
 
         // Render all agent instances below the chart
