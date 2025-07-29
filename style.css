@@ -1,3 +1,7 @@
+/* =================================
+   Global and Page Layout Styles
+   ================================= */
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     display: flex;
@@ -11,7 +15,19 @@ body {
     display: flex;
     gap: 40px;
     margin-top: 20px;
+    position: relative; /* Important for the Game Over overlay positioning */
 }
+
+.right-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+/* =================================
+   Game Board and Cells
+   ================================= */
 
 #game-board {
     display: grid;
@@ -28,19 +44,24 @@ body {
     width: 50px;
     height: 50px;
     border: 1px solid #e0e0e0;
-    box-sizing: border-box;
+    box-sizing: border-box; /* Ensures border doesn't add to size */
 }
 
 .cell.occupied {
     background-color: #7f8c8d;
     border: 1px solid #6a7374;
+    opacity: 1; 
 }
 
-.right-panel {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+/* Style for showing a piece's placement preview on hover */
+.cell.preview {
+    opacity: 0.6;
 }
+
+
+/* =================================
+   Player Shapes and Controls
+   ================================= */
 
 #shapes-container {
     display: flex;
@@ -57,21 +78,54 @@ body {
     width: fit-content;
 }
 
-.shape-cell {
-    width: 30px;
-    height: 30px;
-    box-sizing: border-box;
-    background-color: #3498db;
-    border: 1px solid #2980b9;
-}
-
 .shape.dragging {
     opacity: 0.5;
     cursor: grabbing;
 }
 
+.shape-cell {
+    width: 30px;
+    height: 30px;
+    box-sizing: border-box;
+    /* This background is a default; it will be overwritten by JS for specific shape colors */
+    background-color: #3498db; 
+    border: 1px solid #2980b9;
+}
+
+
+/* =================================
+   UI Panels and Overlays
+   ================================= */
+
 .score-container {
     margin-bottom: 20px;
+}
+
+#game-over-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 48px;
+    font-weight: bold;
+    text-align: center;
+    z-index: 100;
+}
+
+#game-over-overlay.hidden {
+    display: none;
+}
+
+#final-score {
+    font-size: 32px;
+    margin-top: 20px;
 }
 
 #game-over-overlay #reset-button {
@@ -94,49 +148,10 @@ body {
 }
 
 
-.cell.preview {
-    opacity: 0.6;
-}
+/* =================================
+   AI Mode Styles
+   ================================= */
 
-.cell.occupied {
-    background-color: #7f8c8d; 
-    border: 1px solid #6a7374;
-    opacity: 1; 
-}
-#game-over-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.75);
-    color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    font-size: 48px;
-    font-weight: bold;
-    text-align: center;
-    z-index: 100; /* Ensure it's on top */
-}
-
-#game-over-overlay.hidden {
-    display: none;
-}
-
-#final-score {
-    font-size: 32px;
-    margin-top: 20px;
-}
-
-/* Add position:relative to the container to be the reference for the overlay */
-.game-container {
-    position: relative; /* This is important! */
-    display: flex;
-    gap: 40px;
-    margin-top: 20px;
-}
 #ai-stats {
     display: flex;
     gap: 20px;
@@ -170,6 +185,8 @@ body {
 }
 
 
+/* High Score List Styles */
+
 #highscore-container {
     width: 100%;
     margin-top: 20px;
@@ -201,14 +218,74 @@ body {
     border-radius: 3px;
 }
 
-/* Style odd/even list items for readability */
 #highscore-list li:nth-child(odd) {
     background-color: #f7f7f7;
 }
 
-/* Highlight the #1 score */
 #highscore-list li:first-child {
     font-weight: bold;
     color: #c0392b;
     font-size: 1.2em;
+}
+
+
+/* Agent UI Card Styles */
+
+.agent-card {
+    border: 1px solid #ccc;
+    padding: 6px;
+    width: 140px;
+    text-align: center;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.agent-card.active {
+    background-color: #d4edda;
+}
+.agent-card.done {
+    background-color: #f8d7da;
+}
+
+.agent-batch-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    min-height: 36px;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    padding: 2px 0;
+    background-color: #fff;
+}
+
+.agent-mini-shape {
+    display: grid;
+}
+
+.agent-mini-shape-cell {
+    width: 8px;
+    height: 8px;
+}
+
+.agent-mini-board {
+    display: grid;
+    gap: 1px;
+    margin: 4px auto 0;
+    border: 1px solid #aaa;
+    background-color: #f0f0f0;
+}
+
+.agent-mini-board-cell {
+    width: 10px;
+    height: 10px;
+    background-color: #fff;
+}
+
+.agent-copy-btn {
+    font-size: 10px;
+    padding: 2px 4px;
+    margin-top: 2px;
+    cursor: pointer;
 }
