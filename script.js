@@ -27,7 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const cell = document.createElement('div');
             cell.classList.add('cell');
             cell.dataset.index = i;
-            // Add listeners to each cell for previewing
             cell.addEventListener('dragover', handleDragOver);
             cell.addEventListener('dragenter', handleDragEnter);
             cell.addEventListener('dragleave', handleDragLeave);
@@ -36,25 +35,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Shape Generation (same as before) ---
     function generateRandomShape() {
-        const randomShape = shapes[Math.floor(Math.random() * shapes.length)];
+        const shapeData = shapes[Math.floor(Math.random() * shapes.length)];
         const shapeElement = document.createElement('div');
         shapeElement.classList.add('shape');
         shapeElement.draggable = true;
-        shapeElement.dataset.shape = JSON.stringify(randomShape);
-        shapeElement.style.gridTemplateColumns = `repeat(${randomShape.layout[0].length}, 30px)`;
+        shapeElement.dataset.shape = JSON.stringify(shapeData);
 
-        randomShape.layout.flat().forEach(cellValue => {
-            const shapeCell = document.createElement('div');
-            if (cellValue === 1) {
-                shapeCell.classList.add('shape-cell');
-                shapeCell.style.backgroundColor = randomShape.color;
-            } else {
-                // Add an empty div to maintain grid structure for non-rectangular shapes
-                shapeElement.appendChild(document.createElement('div'));
-            }
-            shapeElement.appendChild(shapeCell);
+        const numRows = shapeData.layout.length;
+        const numCols = shapeData.layout[0].length;
+
+        // Explicitly define the grid structure for the shape element
+        shapeElement.style.gridTemplateRows = `repeat(${numRows}, 30px)`;
+        shapeElement.style.gridTemplateColumns = `repeat(${numCols}, 30px)`;
+
+        // Use nested loops to build the shape visually, matching its layout array
+        shapeData.layout.forEach(row => {
+            row.forEach(cellValue => {
+                const cell = document.createElement('div');
+                if (cellValue === 1) {
+                    cell.classList.add('shape-cell');
+                    cell.style.backgroundColor = shapeData.color;
+                }
+                // If cellValue is 0, an empty, transparent div is appended,
+                // which correctly creates the empty space in the shape.
+                shapeElement.appendChild(cell);
+            });
         });
 
         shapeElement.addEventListener('dragstart', handleDragStart);
@@ -69,12 +75,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-
-    // --- Drag and Drop Logic with Preview ---
+    // --- Drag and Drop Logic (same as before) ---
     function handleDragStart(e) {
         draggedShape = e.target;
         draggedShapeData = JSON.parse(e.target.dataset.shape);
-        // Use setTimeout to allow the browser to render the drag image
         setTimeout(() => e.target.classList.add('dragging'), 0);
     }
 
@@ -88,17 +92,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleDragOver(e) {
-        e.preventDefault(); // Necessary to allow dropping
+        e.preventDefault();
     }
 
     function handleDragEnter(e) {
         e.preventDefault();
         if (!draggedShapeData) return;
 
-        const cellIndex = parseInt(e.target.dataset.index);
+        const cell = e.target.closest('.cell');
+        if (!cell) return;
+
+        const cellIndex = parseInt(cell.dataset.index);
         const { x, y } = getCoordsFromIndex(cellIndex);
 
-        clearPreview(); // Clear previous preview before drawing a new one
+        clearPreview();
 
         if (canPlaceShape(draggedShapeData.layout, x, y)) {
             showPreview(draggedShapeData.layout, x, y, draggedShapeData.color);
@@ -106,14 +113,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleDragLeave() {
-        // We clear the preview in dragenter, so this can often be left empty,
-        // but it's good practice to have it.
+        // Clearing is handled by handleDragEnter of the next cell
     }
 
     function handleDrop(e) {
         if (!draggedShapeData) return;
 
-        const cellIndex = parseInt(e.target.dataset.index);
+        const cell = e.target.closest('.cell');
+        if (!cell) return;
+
+        const cellIndex = parseInt(cell.dataset.index);
         const { x, y } = getCoordsFromIndex(cellIndex);
 
         if (canPlaceShape(draggedShapeData.layout, x, y)) {
@@ -128,12 +137,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Preview and Placement Logic ---
-
+    // --- Preview and Placement Logic (same as before) ---
     function clearPreview() {
         document.querySelectorAll('.cell.preview').forEach(cell => {
             cell.classList.remove('preview');
-            cell.style.backgroundColor = ''; // Reset background
+            // Only remove style if it's not an occupied cell
+            if (!cell.classList.contains('occupied')) {
+                cell.style.backgroundColor = '';
+            }
         });
     }
 
@@ -147,13 +158,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (index !== null) {
                         const cell = boardElement.children[index];
                         cell.classList.add('preview');
-                        cell.style.backgroundColor = color; // Use shape's color for preview
+                        cell.style.backgroundColor = color;
                     }
                 }
             });
         });
     }
-
 
     function canPlaceShape(shapeLayout, startX, startY) {
         for (let y = 0; y < shapeLayout.length; y++) {
@@ -161,7 +171,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (shapeLayout[y][x] === 1) {
                     const boardX = startX + x;
                     const boardY = startY + y;
-                    // Check bounds and if the cell is already occupied
                     if (boardX >= boardSize || boardY >= boardSize || grid[boardY * boardSize + boardX]) {
                         return false;
                     }
@@ -182,16 +191,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         });
-        score += placedBlocks; // Score based on blocks placed
+        score += placedBlocks;
     }
 
-
-    // --- Board Update and Utility Functions ---
-
+    // --- Board Update and Utility Functions (same as before) ---
     function updateBoard() {
         const cells = boardElement.children;
         for (let i = 0; i < grid.length; i++) {
-            cells[i].classList.remove('preview'); // Ensure no previews remain
+            cells[i].classList.remove('preview');
             if (grid[i]) {
                 cells[i].classList.add('occupied');
                 cells[i].style.backgroundColor = grid[i];
@@ -208,30 +215,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function getIndexFromCoords(x, y) {
-        if (x < 0 || x >= boardSize || y < 0 || y >= boardSize) {
-            return null;
-        }
+        if (x < 0 || x >= boardSize || y < 0 || y >= boardSize) return null;
         return y * boardSize + x;
     }
 
     function clearLines() {
-        let linesCleared = 0;
         let rowsToClear = [];
         let colsToClear = [];
 
-        // Identify full rows and columns
         for (let i = 0; i < boardSize; i++) {
             let rowFull = true;
             let colFull = true;
             for (let j = 0; j < boardSize; j++) {
-                if (!grid[i * boardSize + j]) rowFull = false; // Check row i
-                if (!grid[j * boardSize + i]) colFull = false; // Check col i
+                if (!grid[i * boardSize + j]) rowFull = false;
+                if (!grid[j * boardSize + i]) colFull = false;
             }
             if (rowFull) rowsToClear.push(i);
             if (colFull) colsToClear.push(i);
         }
 
-        // Clear the identified lines and update score
         const clearedCells = new Set();
         rowsToClear.forEach(y => {
             for (let x = 0; x < boardSize; x++) clearedCells.add(y * boardSize + x);
@@ -242,9 +244,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (clearedCells.size > 0) {
             clearedCells.forEach(index => grid[index] = null);
-            score += clearedCells.size * 2; // Bonus points for clearing lines
-            linesCleared = rowsToClear.length + colsToClear.length;
-            score += linesCleared * 10; // Extra bonus per line
+            let linesCleared = rowsToClear.length + colsToClear.length;
+            if (rowsToClear.length > 0 && colsToClear.length > 0) {
+                // Adjust for double-counting corners
+                linesCleared -= new Set([...rowsToClear, ...colsToClear]).size;
+            }
+            score += clearedCells.size * 2 + linesCleared * 10;
         }
     }
 
