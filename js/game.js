@@ -9,7 +9,6 @@ import { Agent, nextGeneration } from './ai.js';
 const POPULATION_SIZE = 50;
 
 export class Game {
-    sharedShapeQueue = [];
     constructor() {
         this.state = new GameState();
         this.isPlayerMode = true;
@@ -41,6 +40,9 @@ export class Game {
     initChart() {
         const ctx = document.getElementById('genHighScoreChart');
         if (ctx) {
+            if (this.chart) {
+                this.chart.destroy();
+            }
             this.chart = new window.Chart(ctx, {
                 type: 'line',
                 data: {
@@ -138,16 +140,6 @@ export class Game {
         this.initPlayerGame();
     }
 
-    switchToAIMode() {
-        this.isPlayerMode = false;
-        clearInterval(this.gameLoopInterval);
-        ui.hideGameOver();
-        ui.elements.aiStats.classList.remove('hidden');
-        ui.elements.shapesContainer.style.display = 'none';
-        ui.elements.score.parentElement.style.display = 'none';
-        this.startAISimulation();
-    }
-
     // --- Player Mode Logic ---
     initPlayerGame() {
         this.state.reset();
@@ -180,22 +172,32 @@ export class Game {
     }
 
     runNextGeneration() {
-        // Generate shared shape queue for all agents
-        this.sharedShapeQueue = this.generateSimShapes();
+        // Always start with exactly 3 unique random shared choices
+        this.sharedChoices = [];
+        const usedIndexes = new Set();
+        while (this.sharedChoices.length < 3) {
+            const idx = Math.floor(Math.random() * SHAPES.length);
+            if (!usedIndexes.has(idx)) {
+                usedIndexes.add(idx);
+                this.sharedChoices.push(SHAPES[idx]);
+            }
+        }
         this.activeGames = this.population.map(agent => ({
             agent,
             grid: Array(BOARD_SIZE * BOARD_SIZE).fill(null),
             score: 0,
-            shapes: this.sharedShapeQueue.map(s => ({ ...s })), // Deep copy for each agent
             isDone: false,
             choiceLevel: 1
         }));
-
         this.highScore = 0;
         ui.updateAIStats(this.generation, this.activeGames.length, this.highScore);
-
         if (this.gameLoopInterval) clearInterval(this.gameLoopInterval);
         this.gameLoopInterval = setInterval(() => this.simulationStep(), this.gameSpeed);
+    }
+
+    generateNextSharedChoice() {
+        const newShape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+        this.sharedChoices.push(newShape);
     }
 
     simulationStep() {
@@ -207,17 +209,12 @@ export class Game {
             aliveCount++;
             allDone = false;
 
-            // Ensure all agents use the same shape at each choice level
-            if (game.shapes.length === 0) {
-                // If shared queue is exhausted, generate a new shared shape and add to all agents
-                const newShape = this.generateSimShapes()[0];
-                this.sharedShapeQueue.push(newShape);
-                this.activeGames.forEach(g => {
-                    if (!g.isDone) g.shapes.push({ ...newShape });
-                });
-            }
+            // At each choice level, pick 3 random shapes using shuffle
+            const shuffled = SHAPES.slice().sort(() => Math.random() - 0.5);
+            const choiceShapes = shuffled.slice(0, 3);
 
-            const bestMove = game.agent.findBestMove(game.grid, game.shapes);
+            // Find best move among these 3 choices
+            const bestMove = game.agent.findBestMove(game.grid, choiceShapes);
 
             if (!bestMove) {
                 game.isDone = true;
@@ -242,12 +239,25 @@ export class Game {
             game.grid = newGrid;
             game.score += scoreToAdd;
 
-            game.shapes = game.shapes.filter(s => s !== bestMove.shapeData);
             game.choiceLevel++;
         });
 
-        // Render all agent instances below the chart
-        ui.renderAgents(this.activeGames);
+        // For UI: show the last set of choices used by the best agent
+        window.sharedChoices = this.activeGames.length > 0 ? (() => {
+            const bestCurrentAgent = this.activeGames.reduce((best, current) => current.score > best.score ? current : best, this.activeGames[0]);
+            // Generate the 3 choices for the best agent's current level
+            const choiceShapes = [];
+            const usedIndexes = new Set();
+            while (choiceShapes.length < 3) {
+                const idx = Math.floor(Math.random() * SHAPES.length);
+                if (!usedIndexes.has(idx)) {
+                    usedIndexes.add(idx);
+                    choiceShapes.push(SHAPES[idx]);
+                }
+            }
+            return choiceShapes;
+        })() : [];
+        ui.renderSharedChoices(window.sharedChoices, this.activeGames);
 
         // Update the main board with the best agent's grid for visualization
         const bestCurrentAgent = this.activeGames.reduce((best, current) => current.score > best.score ? current : best, this.activeGames[0]);

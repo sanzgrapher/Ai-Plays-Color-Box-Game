@@ -1,5 +1,5 @@
 // Render 50 agent instances for the current generation
-export function renderAgents(agents) {
+export function renderAgents(agents, sharedChoices) {
     const container = document.getElementById('agents-list');
     if (!container) return;
     container.innerHTML = '';
@@ -12,6 +12,36 @@ export function renderAgents(agents) {
         div.style.background = agent.isDone ? '#f8d7da' : '#d4edda';
         div.innerHTML = `<b>#${i + 1}</b><br>Score: ${agent.score}<br>Choice Level: ${agent.choiceLevel}<br>${agent.isDone ? 'Game Over' : 'Active'}`;
 
+        // Show only 3 choices: previous, current, next
+        if (sharedChoices) {
+            const choicesRow = document.createElement('div');
+            choicesRow.style.display = 'flex';
+            choicesRow.style.gap = '2px';
+            // Show only the current choice
+            const idx = agent.choiceLevel - 1;
+            if (idx >= 0 && idx < sharedChoices.length) {
+                const shape = sharedChoices[idx];
+                const shapeDiv = document.createElement('div');
+                shapeDiv.style.display = 'inline-block';
+                shapeDiv.style.margin = '0 1px';
+                shapeDiv.innerHTML = `<span style="font-size:9px;">Current</span><br>`;
+                shape.layout.forEach((row, y) => {
+                    row.forEach((cell, x) => {
+                        const cellBox = document.createElement('span');
+                        cellBox.style.display = 'inline-block';
+                        cellBox.style.width = '7px';
+                        cellBox.style.height = '7px';
+                        cellBox.style.background = cell ? shape.color : '#eee';
+                        cellBox.style.border = '1px solid #ccc';
+                        cellBox.style.margin = '0px';
+                        shapeDiv.appendChild(cellBox);
+                    });
+                    shapeDiv.appendChild(document.createElement('br'));
+                });
+                choicesRow.appendChild(shapeDiv);
+            }
+            div.appendChild(choicesRow);
+        }
         // Mini board
         const board = document.createElement('div');
         board.style.display = 'grid';
@@ -73,7 +103,47 @@ export function renderAgents(agents) {
         container.appendChild(div);
     });
 }
-// js/ui.js
+export function renderSharedChoices(sharedChoices, agents) {
+    const sharedContainer = document.getElementById('shared-choices-container');
+    if (!sharedContainer || !Array.isArray(sharedChoices)) return;
+    sharedContainer.innerHTML = '<h3>Current Choice Level Choices</h3>';
+    const levelRow = document.createElement('div');
+    levelRow.style.display = 'flex';
+    levelRow.style.gap = '12px';
+    sharedChoices.forEach((shape, idx) => {
+        // Use same structure as shapesContainer
+        const shapeDiv = document.createElement('div');
+        shapeDiv.className = 'shape';
+        shapeDiv.style.display = 'grid';
+        shapeDiv.style.gridTemplateRows = `repeat(${shape.layout.length}, 30px)`;
+        shapeDiv.style.gridTemplateColumns = `repeat(${shape.layout[0].length}, 30px)`;
+        shapeDiv.style.margin = '0 4px';
+        shapeDiv.setAttribute('draggable', 'false');
+        shapeDiv.setAttribute('data-shape', JSON.stringify(shape));
+        // Render cells
+        for (let y = 0; y < shape.layout.length; y++) {
+            for (let x = 0; x < shape.layout[0].length; x++) {
+                const cell = shape.layout[y][x];
+                const cellDiv = document.createElement('div');
+                cellDiv.className = 'shape-cell';
+                cellDiv.style.backgroundColor = cell ? shape.color : '#eee';
+                cellDiv.style.width = '30px';
+                cellDiv.style.height = '30px';
+                shapeDiv.appendChild(cellDiv);
+            }
+        }
+        // Add label below
+        const label = document.createElement('div');
+        label.style.textAlign = 'center';
+        label.style.fontSize = '12px';
+        label.textContent = shape.name;
+        shapeDiv.appendChild(label);
+        levelRow.appendChild(shapeDiv);
+    });
+    sharedContainer.appendChild(levelRow);
+    // Render agents below
+    renderAgents(agents, sharedChoices);
+}
 
 import { BOARD_SIZE } from './constants.js';
 
