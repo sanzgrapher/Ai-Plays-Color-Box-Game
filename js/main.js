@@ -1,29 +1,14 @@
-// js/main.js
-
 import { Game } from './game.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Pause/Resume Feature
-    let isPaused = false;
-    const pauseToggle = document.getElementById('pause-toggle');
-    pauseToggle.addEventListener('click', () => {
-        isPaused = !isPaused;
-        pauseToggle.textContent = isPaused ? 'Resume' : 'Pause';
-        if (isPaused) {
-            if (game.gameLoopInterval) {
-                clearInterval(game.gameLoopInterval);
-                game.gameLoopInterval = null;
-            }
-        } else {
-            if (!game.gameLoopInterval) {
-                game.gameLoopInterval = setInterval(() => game.simulationStep(), game.gameSpeed);
-            }
-        }
-    });
     const game = new Game();
+
     const playerModeBtn = document.getElementById('player-mode-btn');
     const aiModeBtn = document.getElementById('ai-mode-btn');
     const resetButton = document.getElementById('reset-button');
+    const speedToggle = document.getElementById('speed-toggle');
+    const pauseToggle = document.getElementById('pause-toggle');
+    let isPaused = false;
 
     // Start in Player Mode
     game.switchToPlayerMode();
@@ -42,23 +27,19 @@ document.addEventListener('DOMContentLoaded', () => {
         game.switchToAIMode();
     });
 
-    // Universal Reset Button
     resetButton.addEventListener('click', () => {
         if (game.isPlayerMode) {
-            game.initPlayerGame();
+            game.initPlayerGame(); // This now calls the controller's init()
         } else {
-            game.startAISimulation();
+            game.startAISimulation(); // Reset the AI simulation
         }
     });
 
-    // Speed Toggle Feature
     const speedLevels = [0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50];
-    let speedIndex = 0;
-    const speedToggle = document.getElementById('speed-toggle');
+    let speedIndex = 3; // Default to 1x
     function updateSpeed() {
-        game.gameSpeed = 50 / speedLevels[speedIndex]; // Lower ms = faster
+        game.gameSpeed = 50 / speedLevels[speedIndex];
         speedToggle.textContent = `Speed: ${speedLevels[speedIndex]}x`;
-        // If AI mode is running, restart interval with new speed
         if (!game.isPlayerMode && game.gameLoopInterval) {
             clearInterval(game.gameLoopInterval);
             game.gameLoopInterval = setInterval(() => game.simulationStep(), game.gameSpeed);
@@ -68,5 +49,18 @@ document.addEventListener('DOMContentLoaded', () => {
         speedIndex = (speedIndex + 1) % speedLevels.length;
         updateSpeed();
     });
-    updateSpeed();
+
+    pauseToggle.addEventListener('click', () => {
+        isPaused = !isPaused;
+        pauseToggle.textContent = isPaused ? 'Resume' : 'Pause';
+        if (isPaused) {
+            clearInterval(game.gameLoopInterval)
+        } else {
+            if (!game.isPlayerMode) {
+                game.gameLoopInterval = setInterval(() => game.simulationStep(), game.gameSpeed);
+            }
+        }
+    });
+
+    updateSpeed(); // Set initial speed
 });
