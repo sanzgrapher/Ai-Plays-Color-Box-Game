@@ -1,4 +1,5 @@
 // js/controller.js
+import { Agent } from './ai.js'; // Needs Agent for creating a temporary agent
 
 import { BOARD_SIZE, SHAPES } from './constants.js';
 import * as logic from './logic.js';
@@ -10,25 +11,43 @@ import { GameState } from './state.js';
  * This controller is used by both the main "Player Mode" and the "Replay" tool.
  */
 export class GameController {
-    constructor(elements) {
-        this.elements = elements; // DOM elements for board, score, shapes, etc.
+    constructor(elements, gameInstance) {
+        this.elements = elements;
+        this.game = gameInstance; 
         this.state = new GameState();
-
         this.eventHandlers = {
-            dragStart: this.handleDragStart.bind(this),
-            dragEnd: this.handleDragEnd.bind(this),
-            dragOver: (e) => e.preventDefault(),
-            dragEnter: this.handleDragEnter.bind(this),
-            dragLeave: this.handleDragLeave.bind(this),
-            drop: this.handleDrop.bind(this),
+            dragStart: this.handleDragStart.bind(this), dragEnd: this.handleDragEnd.bind(this),
+            dragOver: (e) => e.preventDefault(), dragEnter: this.handleDragEnter.bind(this),
+            dragLeave: this.handleDragLeave.bind(this), drop: this.handleDrop.bind(this),
         };
+
+        if (this.elements.hintButton) {
+            this.elements.hintButton.addEventListener('click', () => this.showHint());
+        }
     }
 
-    // FIX: This method has the corrected logic flow
+    showHint() {
+        ui.clearAllHighlights();
+        const modelWeights = this.game.getBestModel();
+        if (!modelWeights) {
+            alert("No AI model has been trained yet. Run the AI simulation first.");
+            return;
+        }
+
+        const tempAgent = new Agent(modelWeights);
+        const bestMove = tempAgent.findBestMove(this.state.grid, this.state.currentShapes);
+        if (bestMove) {
+            ui.highlightHintShape(bestMove.shapeData.id);
+            ui.highlightHintPlacement(this.elements.board, bestMove.shapeData.layout, bestMove.x, bestMove.y);
+        } else {
+            alert("The AI could not find a valid move.");
+        }
+    }
+
     init(initialState = null) {
+        ui.clearAllHighlights(); // Always clear hints when initializing
         if (initialState) {
-            // This path is for the Replay Tool
-            // Load the provided state directly.
+          
             this.state.grid = initialState.grid;
             this.state.score = initialState.score;
             this.state.currentShapes = initialState.currentShapes;
@@ -37,14 +56,8 @@ export class GameController {
             ui.renderShapes(initialState.currentBatch, initialState.currentShapes, this.elements.shapesContainer, this.eventHandlers);
 
         } else {
-            // This path is for starting a NEW GAME in Player Mode
-            // Reset the state to its default (empty grid, score 0).
-            this.state.reset();
-            // Generate a fresh batch of 3 shapes.
-            this.generatePlayerShapes();
+            this.state.reset(); this.generatePlayerShapes();
         }
-
-        // This logic is common to both modes: create the board, update the UI, and check the status.
         ui.createBoard(this.elements.board, this.eventHandlers);
         this.updateUI();
         this.updatePlayabilityStatus();
@@ -78,11 +91,12 @@ export class GameController {
         ui.renderShapes(newShapes, newShapes, this.elements.shapesContainer, this.eventHandlers);
     }
 
-    // --- All Drag & Drop Handlers are Unchanged and Correct ---
     handleDragStart(e) {
+        ui.clearAllHighlights(); 
         this.state.draggedShapeData = JSON.parse(e.target.dataset.shape);
         setTimeout(() => e.target.classList.add('dragging'), 0);
     }
+
 
     handleDragEnd(e) {
         e.target.classList.remove('dragging');
@@ -107,6 +121,7 @@ export class GameController {
     handleDragLeave() { }
 
     handleDrop(e) {
+        ui.clearAllHighlights();
         e.preventDefault();
         if (!this.state.draggedShapeData) return;
         const cell = e.target.closest('.cell');
