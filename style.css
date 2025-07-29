@@ -87,3 +87,14 @@ body {
 #reset-button:hover {
     background-color: #c0392b;
 }
+
+
+.cell.preview {
+    opacity: 0.6;
+}
+
+.cell.occupied {
+    background-color: #7f8c8d; 
+    border: 1px solid #6a7374;
+    opacity: 1; 
+}
