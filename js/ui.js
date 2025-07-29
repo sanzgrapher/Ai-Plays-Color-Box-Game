@@ -1,158 +1,8 @@
-// Render 50 agent instances for the current generation
-export function renderAgents(agents, sharedChoices) {
-    const container = document.getElementById('agents-list');
-    if (!container) return;
-    container.innerHTML = '';
-    agents.forEach((agent, i) => {
-        const div = document.createElement('div');
-        div.style.border = '1px solid #ccc';
-        div.style.padding = '4px';
-        div.style.width = '110px';
-        div.style.textAlign = 'center';
-        div.style.background = agent.isDone ? '#f8d7da' : '#d4edda';
-        div.innerHTML = `<b>#${i + 1}</b><br>Score: ${agent.score}<br>Choice Level: ${agent.choiceLevel}<br>${agent.isDone ? 'Game Over' : 'Active'}`;
-
-        // Show the 3 current choices for this agent
-        if (agent.currentChoices && Array.isArray(agent.currentChoices)) {
-            const choicesRow = document.createElement('div');
-            choicesRow.style.display = 'flex';
-            choicesRow.style.gap = '4px';
-            agent.currentChoices.forEach((shape) => {
-                const shapeDiv = document.createElement('div');
-                shapeDiv.className = 'shape';
-                shapeDiv.style.display = 'grid';
-                shapeDiv.style.gridTemplateRows = `repeat(${shape.layout.length}, 18px)`;
-                shapeDiv.style.gridTemplateColumns = `repeat(${shape.layout[0].length}, 18px)`;
-                shapeDiv.style.margin = '0 1px';
-                shapeDiv.setAttribute('draggable', 'false');
-                shapeDiv.setAttribute('data-shape', JSON.stringify(shape));
-                for (let y = 0; y < shape.layout.length; y++) {
-                    for (let x = 0; x < shape.layout[0].length; x++) {
-                        const cell = shape.layout[y][x];
-                        const cellDiv = document.createElement('div');
-                        cellDiv.className = 'shape-cell';
-                        cellDiv.style.backgroundColor = cell ? shape.color : '#eee';
-                        cellDiv.style.width = '18px';
-                        cellDiv.style.height = '18px';
-                        shapeDiv.appendChild(cellDiv);
-                    }
-                }
-                // Add label below
-                const label = document.createElement('div');
-                label.style.textAlign = 'center';
-                label.style.fontSize = '10px';
-                label.textContent = shape.name;
-                shapeDiv.appendChild(label);
-                choicesRow.appendChild(shapeDiv);
-            });
-            div.appendChild(choicesRow);
-        }
-        // Mini board
-        const board = document.createElement('div');
-        board.style.display = 'grid';
-        board.style.gridTemplateColumns = `repeat(8, 8px)`;
-        board.style.gridTemplateRows = `repeat(8, 8px)`;
-        board.style.gap = '1px';
-        board.style.margin = '2px auto';
-        board.style.width = '70px';
-        board.style.height = '70px';
-        agent.grid.forEach(cell => {
-            const cellDiv = document.createElement('div');
-            cellDiv.style.width = '8px';
-            cellDiv.style.height = '8px';
-            cellDiv.style.background = cell ? cell : '#eee';
-            cellDiv.style.border = '1px solid #ccc';
-            board.appendChild(cellDiv);
-        });
-        div.appendChild(board);
-
-        // Current choice (first shape in shapes array)
-        if (agent.shapes && agent.shapes.length > 0) {
-            const shape = agent.shapes[0];
-            const shapeDiv = document.createElement('div');
-            shapeDiv.style.display = 'inline-block';
-            shapeDiv.style.margin = '2px auto';
-            shapeDiv.innerHTML = '<span style="font-size:10px;">Next:</span><br>';
-            shape.layout.forEach((row, y) => {
-                row.forEach((cell, x) => {
-                    const cellBox = document.createElement('span');
-                    cellBox.style.display = 'inline-block';
-                    cellBox.style.width = '7px';
-                    cellBox.style.height = '7px';
-                    cellBox.style.background = cell ? shape.color : '#eee';
-                    cellBox.style.border = '1px solid #ccc';
-                    cellBox.style.margin = '0px';
-                    shapeDiv.appendChild(cellBox);
-                });
-                shapeDiv.appendChild(document.createElement('br'));
-            });
-            div.appendChild(shapeDiv);
-        }
-
-        // Copy State Button
-        const copyBtn = document.createElement('button');
-        copyBtn.textContent = 'Copy State';
-        copyBtn.style.margin = '2px 0';
-        copyBtn.style.fontSize = '10px';
-        copyBtn.onclick = () => {
-            const state = {
-                score: agent.score,
-                choiceLevel: agent.choiceLevel,
-                grid: agent.grid,
-                shapes: agent.shapes
-            };
-            navigator.clipboard.writeText(JSON.stringify(state, null, 2));
-        };
-        div.appendChild(copyBtn);
-
-        container.appendChild(div);
-    });
-}
-export function renderSharedChoices(sharedChoices, agents) {
-    const sharedContainer = document.getElementById('shared-choices-container');
-    if (!sharedContainer || !Array.isArray(sharedChoices)) return;
-    sharedContainer.innerHTML = '<h3>Current Choice Level Choices</h3>';
-    const levelRow = document.createElement('div');
-    levelRow.style.display = 'flex';
-    levelRow.style.gap = '12px';
-    sharedChoices.forEach((shape, idx) => {
-        // Use same structure as shapesContainer
-        const shapeDiv = document.createElement('div');
-        shapeDiv.className = 'shape';
-        shapeDiv.style.display = 'grid';
-        shapeDiv.style.gridTemplateRows = `repeat(${shape.layout.length}, 30px)`;
-        shapeDiv.style.gridTemplateColumns = `repeat(${shape.layout[0].length}, 30px)`;
-        shapeDiv.style.margin = '0 4px';
-        shapeDiv.setAttribute('draggable', 'false');
-        shapeDiv.setAttribute('data-shape', JSON.stringify(shape));
-        // Render cells
-        for (let y = 0; y < shape.layout.length; y++) {
-            for (let x = 0; x < shape.layout[0].length; x++) {
-                const cell = shape.layout[y][x];
-                const cellDiv = document.createElement('div');
-                cellDiv.className = 'shape-cell';
-                cellDiv.style.backgroundColor = cell ? shape.color : '#eee';
-                cellDiv.style.width = '30px';
-                cellDiv.style.height = '30px';
-                shapeDiv.appendChild(cellDiv);
-            }
-        }
-        // Add label below
-        const label = document.createElement('div');
-        label.style.textAlign = 'center';
-        label.style.fontSize = '12px';
-        label.textContent = shape.name;
-        shapeDiv.appendChild(label);
-        levelRow.appendChild(shapeDiv);
-    });
-    sharedContainer.appendChild(levelRow);
-    // Render agents below
-    renderAgents(agents, sharedChoices);
-}
+// js/ui.js
 
 import { BOARD_SIZE } from './constants.js';
 
-// --- DOM Element References (Corrected & Completed) ---
+// --- DOM Element References ---
 export const elements = {
     board: document.getElementById('game-board'),
     shapesContainer: document.getElementById('shapes-container'),
@@ -160,31 +10,120 @@ export const elements = {
     gameOverOverlay: document.getElementById('game-over-overlay'),
     finalScore: document.getElementById('final-score'),
     resetButton: document.getElementById('reset-button'),
-
-    // --- AI SPECIFIC ELEMENTS ---
     aiStats: document.getElementById('ai-stats'),
     generationStat: document.getElementById('generation-stat'),
     aliveStat: document.getElementById('alive-stat'),
     highscoreStat: document.getElementById('highscore-stat'),
     speedToggle: document.getElementById('speed-toggle'),
-
-    // --- MODE SWITCH BUTTONS ---
     playerModeBtn: document.getElementById('player-mode-btn'),
     aiModeBtn: document.getElementById('ai-mode-btn'),
     highscoreContainer: document.getElementById('highscore-container'),
     highscoreList: document.getElementById('highscore-list'),
 };
 
-// --- UI Rendering Functions ---
+/**
+ * Renders the state of all AI agents, including their current shape batches.
+ * Used shapes from a batch are shown with reduced opacity.
+ * @param {Array} agentGames - The array of active agent game states.
+ */
+export function renderAgents(agentGames) {
+    const container = document.getElementById('agents-list');
+    if (!container) return;
+    container.innerHTML = ''; // Clear previous generation's view
+
+    agentGames.forEach((game, i) => {
+        const div = document.createElement('div');
+        div.style.border = '1px solid #ccc';
+        div.style.padding = '4px';
+        div.style.width = '130px';
+        div.style.textAlign = 'center';
+        div.style.background = game.isDone ? '#f8d7da' : '#d4edda';
+        div.style.borderRadius = '4px';
+        div.innerHTML = `<b>Agent #${i + 1}</b><br>Score: ${game.score}`;
+
+        // Create a set of available shape IDs for quick lookup
+        const availableShapeIds = new Set(game.currentShapes.map(s => s.id));
+
+        // Container for the shape batch (always shows 3 shapes)
+        const batchContainer = document.createElement('div');
+        batchContainer.style.display = 'flex';
+        batchContainer.style.justifyContent = 'space-around';
+        batchContainer.style.alignItems = 'center';
+        batchContainer.style.gap = '2px';
+        batchContainer.style.marginTop = '4px';
+        batchContainer.style.minHeight = '36px'; // Ensures consistent layout
+        batchContainer.style.border = '1px solid #e0e0e0';
+        batchContainer.style.borderRadius = '3px';
+        batchContainer.style.padding = '2px 0';
+
+
+        if (game.currentBatch && game.currentBatch.length > 0) {
+            game.currentBatch.forEach((shape) => {
+                const shapeDiv = document.createElement('div');
+                shapeDiv.style.display = 'grid';
+                shapeDiv.style.gridTemplateRows = `repeat(${shape.layout.length}, 8px)`;
+                shapeDiv.style.gridTemplateColumns = `repeat(${shape.layout[0].length}, 8px)`;
+
+                // Set opacity based on whether the shape has been used
+                shapeDiv.style.opacity = availableShapeIds.has(shape.id) ? '1.0' : '0.2';
+
+                for (let y = 0; y < shape.layout.length; y++) {
+                    for (let x = 0; x < shape.layout[0].length; x++) {
+                        const cell = shape.layout[y][x];
+                        const cellDiv = document.createElement('div');
+                        cellDiv.style.backgroundColor = cell ? shape.color : 'transparent';
+                        cellDiv.style.width = '8px';
+                        cellDiv.style.height = '8px';
+                        shapeDiv.appendChild(cellDiv);
+                    }
+                }
+                batchContainer.appendChild(shapeDiv);
+            });
+        }
+        div.appendChild(batchContainer);
+
+        // Mini-board visualization for the agent
+        const board = document.createElement('div');
+        board.style.display = 'grid';
+        board.style.gridTemplateColumns = `repeat(${BOARD_SIZE}, 10px)`;
+        board.style.gridTemplateRows = `repeat(${BOARD_SIZE}, 10px)`;
+        board.style.gap = '1px';
+        board.style.margin = '4px auto 0';
+        board.style.width = `${BOARD_SIZE * 11}px`;
+        board.style.height = `${BOARD_SIZE * 11}px`;
+        board.style.border = '1px solid #aaa';
+        board.style.backgroundColor = '#f0f0f0';
+
+        game.grid.forEach(cell => {
+            const cellDiv = document.createElement('div');
+            cellDiv.style.width = '10px';
+            cellDiv.style.height = '10px';
+            cellDiv.style.background = cell ? cell : '#fff';
+            board.appendChild(cellDiv);
+        });
+        div.appendChild(board);
+        container.appendChild(div);
+    });
+}
+
+
+/**
+ * Updates the Top 5 high scores list in the UI.
+ * @param {Array<number>} scores 
+ */
 export function updateHighScores(scores) {
-    elements.highscoreList.innerHTML = ''; // Clear the old list
+    elements.highscoreList.innerHTML = '';
     for (const score of scores) {
         const li = document.createElement('li');
         li.textContent = score;
         elements.highscoreList.appendChild(li);
     }
 }
-// createBoard needs to accept the event handlers from the game controller
+
+/**
+ * Creates the game board grid in the DOM.
+ * @param {Object} eventHandlers - Callbacks for drag/drop events.
+ */
 export function createBoard(eventHandlers) {
     elements.board.innerHTML = '';
     for (let i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
@@ -199,10 +138,14 @@ export function createBoard(eventHandlers) {
     }
 }
 
+/**
+ * Updates the visual state of the main game board.
+ * @param {Array} grid - The grid state to render.
+ */
 export function updateBoard(grid) {
     const cells = elements.board.children;
     for (let i = 0; i < grid.length; i++) {
-        cells[i].classList.remove('preview'); // Always remove preview
+        cells[i].classList.remove('preview');
         if (grid[i]) {
             cells[i].classList.add('occupied');
             cells[i].style.backgroundColor = grid[i];
@@ -217,6 +160,12 @@ export function updateScore(score) {
     elements.score.textContent = score;
 }
 
+/**
+ * Renders a single shape element for the player's choices.
+ * @param {Object} shapeData - Data for the shape to render.
+ * @param {Object} eventHandlers - Event callbacks for drag/drop.
+ * @returns {HTMLElement} The rendered shape element.
+ */
 export function renderShape(shapeData, eventHandlers) {
     const shapeElement = document.createElement('div');
     shapeElement.classList.add('shape');

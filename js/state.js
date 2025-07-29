@@ -10,5 +10,6 @@ export class GameState {
         this.score = 0;
         this.isGameOver = false;
         this.draggedShapeData = null;
+        this.currentShapes = []; // Added for tracking the player's current shapes
     }
 }

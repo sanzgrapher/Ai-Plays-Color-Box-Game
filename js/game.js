@@ -104,7 +104,6 @@ export class Game {
             else if (total > 100) step = 100;
             else if (total > 20) step = 10;
             else if (total > 10) step = 2;
-            // Sample points for plotting
             const sampled = data.filter((_, i) => i % step === 0 || i === data.length - 1);
             const sampledAvg = avgData.filter((_, i) => i % step === 0 || i === avgData.length - 1);
             this.chart.data.labels = sampled.map(d => d.generation);
@@ -115,7 +114,6 @@ export class Game {
     }
 
     // --- Mode Switching ---
-
     switchToAIMode() {
         this.isPlayerMode = false;
         clearInterval(this.gameLoopInterval);
@@ -124,7 +122,10 @@ export class Game {
         ui.elements.highscoreContainer.classList.remove('hidden');
         ui.elements.shapesContainer.style.display = 'none';
         ui.elements.score.parentElement.style.display = 'none';
-        // Re-initialize chart in case DOM was not ready before
+
+        // Show AI-specific elements and hide player's
+        document.getElementById('agents-container').style.display = 'block';
+
         this.initChart();
         this.startAISimulation();
     }
@@ -137,6 +138,10 @@ export class Game {
         ui.elements.highscoreContainer.classList.add('hidden');
         ui.elements.shapesContainer.style.display = '';
         ui.elements.score.parentElement.style.display = '';
+
+        // Hide AI-specific elements
+        document.getElementById('agents-container').style.display = 'none';
+
         this.initPlayerGame();
     }
 
@@ -151,12 +156,18 @@ export class Game {
 
     generatePlayerShapes() {
         ui.elements.shapesContainer.innerHTML = '';
+        this.state.currentShapes = []; // Clear old shapes from state
         for (let i = 0; i < 3; i++) {
-            const shapeData = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+            const shapeData = {
+                ...SHAPES[Math.floor(Math.random() * SHAPES.length)],
+                id: `p-${Date.now()}-${i}` // Add unique ID for tracking
+            };
+            this.state.currentShapes.push(shapeData);
             const shapeElement = ui.renderShape(shapeData, this.eventHandlers);
             ui.elements.shapesContainer.appendChild(shapeElement);
         }
-        if (logic.isGameOver(this.state.grid)) {
+
+        if (logic.isGameOver(this.state.grid, this.state.currentShapes)) {
             this.handleGameOver();
         }
     }
@@ -172,50 +183,52 @@ export class Game {
     }
 
     runNextGeneration() {
-        // Always start with exactly 3 unique random shared choices
-        this.sharedChoices = [];
-        const usedIndexes = new Set();
-        while (this.sharedChoices.length < 3) {
-            const idx = Math.floor(Math.random() * SHAPES.length);
-            if (!usedIndexes.has(idx)) {
-                usedIndexes.add(idx);
-                this.sharedChoices.push(SHAPES[idx]);
-            }
-        }
+        this.highScore = 0; // Reset high score for the new generation's run
+        this.population.forEach((agent, index) => agent.id = index);
+
         this.activeGames = this.population.map(agent => ({
             agent,
             grid: Array(BOARD_SIZE * BOARD_SIZE).fill(null),
             score: 0,
             isDone: false,
-            choiceLevel: 1
+            currentShapes: [], // The shapes the agent *can still place*
+            currentBatch: [],  // The original 3 shapes given this cycle
         }));
-        this.highScore = 0;
+
         ui.updateAIStats(this.generation, this.activeGames.length, this.highScore);
         if (this.gameLoopInterval) clearInterval(this.gameLoopInterval);
         this.gameLoopInterval = setInterval(() => this.simulationStep(), this.gameSpeed);
     }
 
-    generateNextSharedChoice() {
-        const newShape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
-        this.sharedChoices.push(newShape);
-    }
-
     simulationStep() {
         let aliveCount = 0;
-        let allDone = true;
 
         this.activeGames.forEach(game => {
             if (game.isDone) return;
-            aliveCount++;
-            allDone = false;
 
-            // At each choice level, pick 3 random shapes using shuffle
-            const shuffled = SHAPES.slice().sort(() => Math.random() - 0.5);
-            const choiceShapes = shuffled.slice(0, 3);
+            // If shape inventory is empty, generate a new batch of 3.
+            if (game.currentShapes.length === 0) {
+                const newBatch = Array.from({ length: 3 }, (_, i) => ({
+                    ...SHAPES[Math.floor(Math.random() * SHAPES.length)],
+                    id: `g${this.generation}-a${game.agent.id}-${Date.now()}-${i}`
+                }));
+                game.currentBatch = newBatch;
+                game.currentShapes = [...newBatch];
 
-            // Find best move among these 3 choices
-            const bestMove = game.agent.findBestMove(game.grid, choiceShapes);
+                // CRITICAL CHECK: Agent fails immediately if no new shapes can be placed.
+                if (logic.isGameOver(game.grid, game.currentShapes)) {
+                    game.isDone = true;
+                    game.agent.fitness = game.score;
+                    if (game.score > this.highScore) this.highScore = game.score;
+                    this.updateTopScores(game.score);
+                    return;
+                }
+            }
 
+            // Find the best move among the *currently available* shapes.
+            const bestMove = game.agent.findBestMove(game.grid, game.currentShapes);
+
+            // AGENT FAILS: If there are shapes left but none can be placed.
             if (!bestMove) {
                 game.isDone = true;
                 game.agent.fitness = game.score;
@@ -224,73 +237,57 @@ export class Game {
                 return;
             }
 
-            // Place the shape
+            aliveCount++;
+
+            // Apply the best move to the agent's grid.
             bestMove.shapeData.layout.forEach((row, y) => {
                 row.forEach((cell, x) => {
                     if (cell === 1) {
-                        const index = (bestMove.y + y) * BOARD_SIZE + (bestMove.x + x);
-                        game.grid[index] = bestMove.shapeData.color;
+                        game.grid[(bestMove.y + y) * BOARD_SIZE + (bestMove.x + x)] = bestMove.shapeData.color;
                     }
                 });
             });
-            game.score += bestMove.shapeData.layout.flat().filter(v => v === 1).length;
 
+            // Update score.
+            game.score += bestMove.shapeData.layout.flat().filter(v => v === 1).length;
             const { newGrid, scoreToAdd } = logic.clearLines(game.grid);
             game.grid = newGrid;
             game.score += scoreToAdd;
 
-            game.choiceLevel++;
+            // Remove the used shape from the available shapes inventory.
+            game.currentShapes = game.currentShapes.filter(s => s.id !== bestMove.shapeData.id);
         });
 
-        // For UI: show the last set of choices used by the best agent
-        window.sharedChoices = this.activeGames.length > 0 ? (() => {
-            const bestCurrentAgent = this.activeGames.reduce((best, current) => current.score > best.score ? current : best, this.activeGames[0]);
-            // Generate the 3 choices for the best agent's current level
-            const choiceShapes = [];
-            const usedIndexes = new Set();
-            while (choiceShapes.length < 3) {
-                const idx = Math.floor(Math.random() * SHAPES.length);
-                if (!usedIndexes.has(idx)) {
-                    usedIndexes.add(idx);
-                    choiceShapes.push(SHAPES[idx]);
-                }
-            }
-            return choiceShapes;
-        })() : [];
-        ui.renderSharedChoices(window.sharedChoices, this.activeGames);
-
-        // Update the main board with the best agent's grid for visualization
-        const bestCurrentAgent = this.activeGames.reduce((best, current) => current.score > best.score ? current : best, this.activeGames[0]);
-        if (bestCurrentAgent) {
-            ui.updateBoard(bestCurrentAgent.grid);
+        // --- UI Updates ---
+        const bestAgentForDisplay = this.activeGames.length > 0 ? this.activeGames.reduce((best, current) => current.score > best.score ? current : best, this.activeGames[0]) : null;
+        if (bestAgentForDisplay) {
+            ui.updateBoard(bestAgentForDisplay.grid);
         }
-
+        ui.renderAgents(this.activeGames);
         ui.updateAIStats(this.generation, aliveCount, this.highScore);
 
-        // Only advance to next generation when all agents are done
-        if (allDone) {
+        // Check if the entire generation's simulation is complete.
+        if (aliveCount === 0 && this.activeGames.length > 0) {
             clearInterval(this.gameLoopInterval);
             this.gameLoopInterval = null;
-            this.generation++;
-            // Calculate average score for this generation
+
             const avgScore = this.activeGames.reduce((sum, g) => sum + g.score, 0) / this.activeGames.length;
             this.genHighScoreData.push({ generation: this.generation, highScore: this.highScore });
             this.genAvgScoreData.push({ generation: this.generation, avgScore });
             this.updateChart();
+
+            this.generation++;
             this.population = nextGeneration(this.population);
             this.runNextGeneration();
         }
     }
+
     updateTopScores(score) {
         this.top5Scores.push(score);
-        // Sort descending
         this.top5Scores.sort((a, b) => b - a);
-        // Keep only the top 5
         this.top5Scores = this.top5Scores.slice(0, 5);
-        // Update the UI
         ui.updateHighScores(this.top5Scores);
     }
-    generateSimShapes = () => Array.from({ length: 3 }, () => SHAPES[Math.floor(Math.random() * SHAPES.length)]);
 
     // --- Shared Logic ---
     updateUI() {
@@ -342,10 +339,8 @@ export class Game {
 
         if (logic.canPlaceShape(this.state.grid, this.state.draggedShapeData.layout, x, y)) {
             const draggedElement = document.querySelector('.shape.dragging');
+            const { layout: shapeLayout, color, id } = this.state.draggedShapeData;
 
-            // Place shape in state.grid
-            const shapeLayout = this.state.draggedShapeData.layout;
-            const color = this.state.draggedShapeData.color;
             shapeLayout.forEach((row, rY) => {
                 row.forEach((cellValue, rX) => {
                     if (cellValue === 1) {
@@ -353,16 +348,19 @@ export class Game {
                     }
                 });
             });
-            this.state.score += shapeLayout.flat().filter(v => v === 1).length;
 
+            this.state.score += shapeLayout.flat().filter(v => v === 1).length;
             const { newGrid, scoreToAdd } = logic.clearLines(this.state.grid);
             this.state.grid = newGrid;
             this.state.score += scoreToAdd;
 
+            this.state.currentShapes = this.state.currentShapes.filter(s => s.id !== id);
+
             this.updateUI();
+
             if (draggedElement) draggedElement.remove();
 
-            if (ui.elements.shapesContainer.children.length === 0) {
+            if (this.state.currentShapes.length === 0) {
                 this.generatePlayerShapes();
             }
         }

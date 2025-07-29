@@ -1,7 +1,6 @@
 // js/logic.js
 
 import { BOARD_SIZE } from './constants.js';
-import { elements } from './ui.js';
 
 /**
  * Checks if a shape can be placed at a specific location on the grid.
@@ -75,25 +74,24 @@ export function clearLines(grid) {
 /**
  * Checks if there are any possible moves for the available shapes.
  * @param {Array} grid - The current game grid.
+ * @param {Array} availableShapes - An array of shape data objects.
  * @returns {boolean} - True if the game is over, otherwise false.
  */
-export function isGameOver(grid) {
-    const availableShapes = elements.shapesContainer.querySelectorAll('.shape');
-    if (availableShapes.length === 0) {
-        return false; // Not over if the player can get a new batch
+export function isGameOver(grid, availableShapes) {
+    if (!availableShapes || availableShapes.length === 0) {
+        return false; // Not over if a new batch can be generated.
     }
 
-    for (const shapeElement of availableShapes) {
-        const shapeData = JSON.parse(shapeElement.dataset.shape);
-        // Check every cell as a potential drop point
+    for (const shapeData of availableShapes) {
+        // Check every cell on the board as a potential top-left drop point.
         for (let i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
             const x = i % BOARD_SIZE;
             const y = Math.floor(i / BOARD_SIZE);
             if (canPlaceShape(grid, shapeData.layout, x, y)) {
-                return false; // Found a valid move
+                return false; // Found at least one valid move for one shape.
             }
         }
     }
 
-    return true; // No moves found for any available shape
+    return true; // No moves found for any of the available shapes.
 }
