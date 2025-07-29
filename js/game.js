@@ -198,10 +198,12 @@ export class Game {
 
     simulationStep() {
         let aliveCount = 0;
+        let allDone = true;
 
         this.activeGames.forEach(game => {
             if (game.isDone) return;
             aliveCount++;
+            allDone = false;
 
             const bestMove = game.agent.findBestMove(game.grid, game.shapes);
 
@@ -209,15 +211,9 @@ export class Game {
                 game.isDone = true;
                 game.agent.fitness = game.score;
                 if (game.score > this.highScore) this.highScore = game.score;
-
-                // --- NEW LOGIC for updating top scores ---
                 this.updateTopScores(game.score);
-
                 return;
             }
-
-            // Render all agent instances below the chart
-            ui.renderAgents(this.activeGames);
 
             // Place the shape
             bestMove.shapeData.layout.forEach((row, y) => {
@@ -240,6 +236,9 @@ export class Game {
             }
         });
 
+        // Render all agent instances below the chart
+        ui.renderAgents(this.activeGames);
+
         // Update the main board with the best agent's grid for visualization
         const bestCurrentAgent = this.activeGames.reduce((best, current) => current.score > best.score ? current : best, this.activeGames[0]);
         if (bestCurrentAgent) {
@@ -248,8 +247,10 @@ export class Game {
 
         ui.updateAIStats(this.generation, aliveCount, this.highScore);
 
-        if (aliveCount === 0) {
+        // Only advance to next generation when all agents are done
+        if (allDone) {
             clearInterval(this.gameLoopInterval);
+            this.gameLoopInterval = null;
             this.generation++;
             // Calculate average score for this generation
             const avgScore = this.activeGames.reduce((sum, g) => sum + g.score, 0) / this.activeGames.length;

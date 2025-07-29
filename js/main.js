@@ -3,6 +3,23 @@
 import { Game } from './game.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Pause/Resume Feature
+    let isPaused = false;
+    const pauseToggle = document.getElementById('pause-toggle');
+    pauseToggle.addEventListener('click', () => {
+        isPaused = !isPaused;
+        pauseToggle.textContent = isPaused ? 'Resume' : 'Pause';
+        if (isPaused) {
+            if (game.gameLoopInterval) {
+                clearInterval(game.gameLoopInterval);
+                game.gameLoopInterval = null;
+            }
+        } else {
+            if (!game.gameLoopInterval) {
+                game.gameLoopInterval = setInterval(() => game.simulationStep(), game.gameSpeed);
+            }
+        }
+    });
     const game = new Game();
     const playerModeBtn = document.getElementById('player-mode-btn');
     const aiModeBtn = document.getElementById('ai-mode-btn');
