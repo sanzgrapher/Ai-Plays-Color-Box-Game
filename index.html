@@ -34,7 +34,6 @@
           <button id="ai-mode-btn">AI Mode</button>
         </div>
 
-        <!-- NEW High Score List Container -->
         <div id="highscore-container" class="hidden">
           <h3>Top 5 Scores</h3>
           <ol id="highscore-list"></ol>
@@ -43,8 +42,11 @@
           <h3>Generation vs High Score</h3>
           <canvas id="genHighScoreChart" width="800" height="200"></canvas>
         </div>
+        
+        <!-- Restored container; will remain empty as its logic is now per-agent -->
         <div id="shared-choices-container"></div>
-        <div id="agents-container">
+
+        <div id="agents-container" style="display: none;"> <!-- Hidden by default -->
           <h3>Current Generation Agents</h3>
           <div
             id="agents-list"
@@ -52,10 +54,6 @@
           ></div>
         </div>
       </div>
-      <!-- <div class="mode-switch">
-        <button id="player-mode-btn" class="active">Player Mode</button>
-        <button id="ai-mode-btn">AI Mode</button>
-      </div> -->
     </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="module" src="js/main.js"></script>
