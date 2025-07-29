@@ -1,39 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" /> <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Color Box Game</title> <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Color Box Game</title>
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <h1>Color Box Game</h1>
     <div id="ai-stats" class="hidden">
-      <span>Generation: <b id="generation-stat">0</b></span> <span>Alive: <b id="alive-stat">0</b></span> <span>High Score: <b id="highscore-stat">0</b></span>
-      <button id="speed-toggle">Speed: 1x</button> <button id="pause-toggle">Pause</button>
+      <span>Generation: <b id="generation-stat">0</b></span>
+      <span>Alive: <b id="alive-stat">0</b></span>
+      <span>High Score: <b id="highscore-stat">0</b></span>
+      <button id="speed-toggle">Speed: 1x</button>
+      <button id="pause-toggle">Pause</button>
     </div>
     <div class="game-container">
       <div id="game-over-overlay" class="hidden">
-        <div>Game Over!</div> <div id="final-score"></div>
+        <div>Game Over!</div>
+        <div id="final-score"></div>
         <button id="reset-button">Play Again</button>
       </div>
       <div id="game-board" class="grid-8x8"></div>
       <div class="right-panel">
-        <div id="shapes-container" class="shapes-container"></div>
+        <div id="shapes-container"></div>
         <div id="score-container" class="score-container">
           <h2>Score: <span id="score">0</span></h2>
         </div>
-        <div class="mode-switch">
-          <button id="player-mode-btn" class="active">Player Mode</button> <button id="ai-mode-btn">AI Mode</button>
+        
+        <!-- NEW HINT BUTTON -->
+        <div class="hint-container" style="margin-bottom: 20px;">
+          <button id="hint-button" disabled>Get AI Hint</button>
         </div>
+
+        <div class="mode-switch">
+          <button id="player-mode-btn" class="active">Player Mode</button>
+          <button id="ai-mode-btn">AI Mode</button>
+        </div>
+
         <div id="highscore-container" class="hidden">
-          <h3>Top 5 Scores</h3> <ol id="highscore-list"></ol>
+          <h3>Top 5 Scores</h3>
+          <ol id="highscore-list"></ol>
         </div>
         <div class="chart-container">
-          <h3>Generation vs High Score</h3> <canvas id="genHighScoreChart" width="800" height="200"></canvas>
+          <h3>Generation vs High Score</h3>
+          <canvas id="genHighScoreChart" width="800" height="200"></canvas>
         </div>
         <div id="shared-choices-container"></div>
         <div id="agents-container" style="display: none;">
           <h3>Current Generation Agents</h3>
-          <div id="agents-list" style="display: flex; flex-wrap: wrap; gap: 8px"></div>
+          <div
+            id="agents-list"
+            style="display: flex; flex-wrap: wrap; gap: 8px"
+          ></div>
         </div>
       </div>
     </div>
