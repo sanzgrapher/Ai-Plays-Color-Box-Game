@@ -98,3 +98,37 @@ body {
     border: 1px solid #6a7374;
     opacity: 1; 
 }
+#game-over-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 48px;
+    font-weight: bold;
+    text-align: center;
+    z-index: 100; /* Ensure it's on top */
+}
+
+#game-over-overlay.hidden {
+    display: none;
+}
+
+#final-score {
+    font-size: 32px;
+    margin-top: 20px;
+}
+
+/* Add position:relative to the container to be the reference for the overlay */
+.game-container {
+    position: relative; /* This is important! */
+    display: flex;
+    gap: 40px;
+    margin-top: 20px;
+}
