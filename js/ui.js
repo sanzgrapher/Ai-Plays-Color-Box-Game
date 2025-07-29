@@ -22,14 +22,13 @@ export const elements = {
 };
 
 /**
- * Renders the state of all AI agents, including their current shape batches.
- * Used shapes from a batch are shown with reduced opacity.
+ * Renders the state of all AI agents, including the Copy State button and detailed shape batch visualization.
  * @param {Array} agentGames - The array of active agent game states.
  */
 export function renderAgents(agentGames) {
     const container = document.getElementById('agents-list');
     if (!container) return;
-    container.innerHTML = ''; // Clear previous generation's view
+    container.innerHTML = ''; // Clear previous view
 
     agentGames.forEach((game, i) => {
         const div = document.createElement('div');
@@ -39,32 +38,28 @@ export function renderAgents(agentGames) {
         div.style.textAlign = 'center';
         div.style.background = game.isDone ? '#f8d7da' : '#d4edda';
         div.style.borderRadius = '4px';
-        div.innerHTML = `<b>Agent #${i + 1}</b><br>Score: ${game.score}`;
+        div.innerHTML = `<b>Agent #${game.agent.id + 1}</b><br>Score: ${game.score}<br>${game.isDone ? 'Game Over' : 'Active'}`;
 
-        // Create a set of available shape IDs for quick lookup
-        const availableShapeIds = new Set(game.currentShapes.map(s => s.id));
-
-        // Container for the shape batch (always shows 3 shapes)
+        // Container for the shape batch
         const batchContainer = document.createElement('div');
         batchContainer.style.display = 'flex';
         batchContainer.style.justifyContent = 'space-around';
         batchContainer.style.alignItems = 'center';
         batchContainer.style.gap = '2px';
         batchContainer.style.marginTop = '4px';
-        batchContainer.style.minHeight = '36px'; // Ensures consistent layout
+        batchContainer.style.minHeight = '36px';
         batchContainer.style.border = '1px solid #e0e0e0';
         batchContainer.style.borderRadius = '3px';
         batchContainer.style.padding = '2px 0';
 
-
+        // Visualize the agent's full shape batch (used shapes are grayed out)
         if (game.currentBatch && game.currentBatch.length > 0) {
+            const availableShapeIds = new Set(game.currentShapes.map(s => s.id));
             game.currentBatch.forEach((shape) => {
                 const shapeDiv = document.createElement('div');
                 shapeDiv.style.display = 'grid';
                 shapeDiv.style.gridTemplateRows = `repeat(${shape.layout.length}, 8px)`;
                 shapeDiv.style.gridTemplateColumns = `repeat(${shape.layout[0].length}, 8px)`;
-
-                // Set opacity based on whether the shape has been used
                 shapeDiv.style.opacity = availableShapeIds.has(shape.id) ? '1.0' : '0.2';
 
                 for (let y = 0; y < shape.layout.length; y++) {
@@ -82,15 +77,13 @@ export function renderAgents(agentGames) {
         }
         div.appendChild(batchContainer);
 
-        // Mini-board visualization for the agent
+        // Mini-board visualization
         const board = document.createElement('div');
         board.style.display = 'grid';
         board.style.gridTemplateColumns = `repeat(${BOARD_SIZE}, 10px)`;
         board.style.gridTemplateRows = `repeat(${BOARD_SIZE}, 10px)`;
         board.style.gap = '1px';
         board.style.margin = '4px auto 0';
-        board.style.width = `${BOARD_SIZE * 11}px`;
-        board.style.height = `${BOARD_SIZE * 11}px`;
         board.style.border = '1px solid #aaa';
         board.style.backgroundColor = '#f0f0f0';
 
@@ -102,15 +95,34 @@ export function renderAgents(agentGames) {
             board.appendChild(cellDiv);
         });
         div.appendChild(board);
+
+        const copyBtn = document.createElement('button');
+        copyBtn.textContent = 'Copy State';
+        copyBtn.style.margin = '4px 0 2px 0';
+        copyBtn.style.fontSize = '10px';
+        copyBtn.style.padding = '2px 4px';
+        copyBtn.onclick = () => {
+            // Include all relevant state details for debugging
+            const stateToCopy = {
+                score: game.score,
+                isDone: game.isDone,
+                grid: game.grid,
+                currentBatch: game.currentBatch,
+                currentShapes: game.currentShapes, // The currently usable shapes
+                agentWeights: game.agent.weights
+            };
+            navigator.clipboard.writeText(JSON.stringify(stateToCopy, null, 2))
+                .then(() => {
+                    copyBtn.textContent = 'Copied!';
+                    setTimeout(() => copyBtn.textContent = 'Copy State', 1500);
+                });
+        };
+        div.appendChild(copyBtn);
+
         container.appendChild(div);
     });
 }
 
-
-/**
- * Updates the Top 5 high scores list in the UI.
- * @param {Array<number>} scores 
- */
 export function updateHighScores(scores) {
     elements.highscoreList.innerHTML = '';
     for (const score of scores) {
@@ -120,10 +132,6 @@ export function updateHighScores(scores) {
     }
 }
 
-/**
- * Creates the game board grid in the DOM.
- * @param {Object} eventHandlers - Callbacks for drag/drop events.
- */
 export function createBoard(eventHandlers) {
     elements.board.innerHTML = '';
     for (let i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
@@ -138,10 +146,6 @@ export function createBoard(eventHandlers) {
     }
 }
 
-/**
- * Updates the visual state of the main game board.
- * @param {Array} grid - The grid state to render.
- */
 export function updateBoard(grid) {
     const cells = elements.board.children;
     for (let i = 0; i < grid.length; i++) {
@@ -160,12 +164,6 @@ export function updateScore(score) {
     elements.score.textContent = score;
 }
 
-/**
- * Renders a single shape element for the player's choices.
- * @param {Object} shapeData - Data for the shape to render.
- * @param {Object} eventHandlers - Event callbacks for drag/drop.
- * @returns {HTMLElement} The rendered shape element.
- */
 export function renderShape(shapeData, eventHandlers) {
     const shapeElement = document.createElement('div');
     shapeElement.classList.add('shape');
@@ -226,7 +224,6 @@ export function hideGameOver() {
     elements.gameOverOverlay.classList.add('hidden');
 }
 
-// --- AI Specific UI Updates ---
 export function updateAIStats(generation, alive, highScore) {
     elements.generationStat.textContent = generation;
     elements.aliveStat.textContent = alive;
