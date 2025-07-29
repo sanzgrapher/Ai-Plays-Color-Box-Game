@@ -13,8 +13,11 @@ export class Game {
         this.playerController = new GameController({
             board: document.getElementById('game-board'),
             shapesContainer: document.getElementById('shapes-container'),
-            score: document.getElementById('score')
-        });
+            score: document.getElementById('score'),
+            hintButton: document.getElementById('hint-button')
+        }, this);
+
+        this.bestAgentModel = null; 
 
         this.mainGameBoardElement = document.getElementById('game-board');
 
@@ -30,7 +33,9 @@ export class Game {
         this.chart = null;
         this.initChart();
     }
-
+    getBestModel() {
+        return this.bestAgentModel;
+    }
     initChart() {
         const ctx = document.getElementById('genHighScoreChart');
         if (ctx) {
@@ -82,6 +87,7 @@ export class Game {
         document.getElementById('agents-container').style.display = 'none';
         document.getElementById('shapes-container').style.display = '';
         document.getElementById('score-container').style.display = '';
+        document.getElementById('hint-button').disabled = !this.bestAgentModel;
         this.playerController.init();
     }
 
@@ -125,7 +131,10 @@ export class Game {
                 if (logic.isGameOver(game.grid, game.currentShapes)) {
                     game.isDone = true;
                     game.agent.fitness = game.score;
-                    if (game.score > this.highScore) this.highScore = game.score;
+                    if (game.score > this.highScore) {
+                        this.highScore = game.score;
+                        this.bestAgentModel = { ...game.agent.weights };
+                    }
                     this.updateTopScores(game.score);
                     return;
                 }
