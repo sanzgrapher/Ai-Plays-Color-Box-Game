@@ -10,7 +10,7 @@ export function renderAgents(agents) {
         div.style.width = '110px';
         div.style.textAlign = 'center';
         div.style.background = agent.isDone ? '#f8d7da' : '#d4edda';
-        div.innerHTML = `<b>#${i + 1}</b><br>Score: ${agent.score}<br>${agent.isDone ? 'Game Over' : 'Active'}`;
+        div.innerHTML = `<b>#${i + 1}</b><br>Score: ${agent.score}<br>Choice Level: ${agent.choiceLevel}<br>${agent.isDone ? 'Game Over' : 'Active'}`;
 
         // Mini board
         const board = document.createElement('div');
@@ -53,6 +53,22 @@ export function renderAgents(agents) {
             });
             div.appendChild(shapeDiv);
         }
+
+        // Copy State Button
+        const copyBtn = document.createElement('button');
+        copyBtn.textContent = 'Copy State';
+        copyBtn.style.margin = '2px 0';
+        copyBtn.style.fontSize = '10px';
+        copyBtn.onclick = () => {
+            const state = {
+                score: agent.score,
+                choiceLevel: agent.choiceLevel,
+                grid: agent.grid,
+                shapes: agent.shapes
+            };
+            navigator.clipboard.writeText(JSON.stringify(state, null, 2));
+        };
+        div.appendChild(copyBtn);
 
         container.appendChild(div);
     });

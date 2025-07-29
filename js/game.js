@@ -186,7 +186,8 @@ export class Game {
             grid: Array(BOARD_SIZE * BOARD_SIZE).fill(null),
             score: 0,
             shapes: sharedShapes.map(s => ({ ...s })), // Deep copy for each agent
-            isDone: false
+            isDone: false,
+            choiceLevel: 1
         }));
 
         this.highScore = 0;
@@ -231,6 +232,7 @@ export class Game {
             game.score += scoreToAdd;
 
             game.shapes = game.shapes.filter(s => s !== bestMove.shapeData);
+            game.choiceLevel++;
             if (game.shapes.length === 0) {
                 game.shapes = this.generateSimShapes();
             }
