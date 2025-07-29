@@ -190,3 +190,41 @@ export function renderAgents(agentGames) {
         container.appendChild(div);
     });
 }
+
+
+/**
+ * Applies a visual highlight to the shape the AI suggests.
+ */
+export function highlightHintShape(shapeId) {
+    // We search the main shapes container for the correct shape
+    const container = document.getElementById('shapes-container');
+    const shapeEl = container.querySelector(`[data-shape*='"id":"${shapeId}"']`);
+    if (shapeEl) {
+        shapeEl.classList.add('hint-shape');
+    }
+}
+
+/**
+ * Highlights the cells on the board where the AI would place the shape.
+ */
+export function highlightHintPlacement(boardElement, layout, x, y) {
+    layout.forEach((row, rY) => {
+        row.forEach((cell, rX) => {
+            if (cell === 1) {
+                const index = (y + rY) * BOARD_SIZE + (x + rX);
+                const cellEl = boardElement.children[index];
+                if (cellEl) {
+                    cellEl.classList.add('hint-placement');
+                }
+            }
+        });
+    });
+}
+
+/**
+ * Removes all visual hints from the board and shapes.
+ */
+export function clearAllHighlights() {
+    document.querySelectorAll('.hint-shape').forEach(el => el.classList.remove('hint-shape'));
+    document.querySelectorAll('.cell.hint-placement').forEach(el => el.classList.remove('hint-placement'));
+}
