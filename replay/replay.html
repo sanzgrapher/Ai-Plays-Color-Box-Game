@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interactive Agent Replay</title>
+    <!-- Reusing the main game's stylesheet -->
+    <link rel="stylesheet" href="../style.css" />
+    <style>
+      body {
+        justify-content: flex-start;
+      }
+      .replay-controls {
+        width: 100%;
+        max-width: 800px;
+        padding: 20px;
+        background-color: #e9ecef;
+        border-radius: 8px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      textarea {
+        width: 100%;
+        min-height: 150px;
+        font-family: monospace;
+        font-size: 14px;
+        margin-bottom: 10px;
+      }
+      button {
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        border: none;
+        border-radius: 4px;
+        background-color: #007bff;
+        color: white;
+      }
+      .replay-wrapper {
+        display: flex;
+        gap: 40px;
+        justify-content: center;
+        align-items: flex-start;
+      }
+      /* Ensure the shape container has enough space */
+       #shapes-container {
+        min-height: 200px;
+        border: 1px dashed #ccc;
+        padding: 10px;
+       }
+    </style>
+  </head>
+  <body>
+    <h1>Interactive Agent Replay</h1>
+
+    <div class="replay-controls">
+      <p>
+        Paste an agent's copied state. Used shapes will be dimmed. You can then play from that point using only the available, draggable shapes.
+      </p>
+      <textarea
+        id="state-json-input"
+        placeholder="Paste agent state JSON here..."
+      ></textarea>
+      <button id="load-state-btn">Load State</button>
+    </div>
+
+    <div class="replay-wrapper">
+      <!-- Game board for the replay -->
+      <div id="game-board" class="grid-8x8"></div>
+
+      <!-- Right panel for score and shapes -->
+      <div class="right-panel">
+         <div class="score-container">
+            <h2>Score: <span id="score">0</span></h2>
+          </div>
+        <h3>Shape Batch:</h3>
+        <div id="shapes-container"></div>
+      </div>
+    </div>
+
+    <!-- The script must be a module to support importing game logic -->
+    <script type="module" src="replay.js"></script>
+  </body>
+</html>
