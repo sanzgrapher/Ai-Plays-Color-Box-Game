@@ -1,3 +1,4 @@
+
 import { SHAPES, BOARD_SIZE } from './constants.js';
 import * as logic from './logic.js';
 import * as ui from './ui.js';
@@ -17,64 +18,70 @@ export class Game {
             hintButton: document.getElementById('hint-button')
         }, this);
 
-        this.bestAgentModel = null; 
+        // Model Management
+        this.loadedModels = { A: null, B: null };
+        this.activeModelKey = 'A';
+
+        // AI Simulation State
+        this.population = []; this.generation = 0; this.highScore = 0;
+        this.top5Scores = []; this.gameLoopInterval = null; this.gameSpeed = 50;
+        this.bestAgentModelForOutput = null; this.isPaused = false;
+
+        // Chart State
+        this.genHighScoreData = []; this.genAvgScoreData = [];
+        // FIX: Chart is now correctly initialized on-demand, not here.
+        this.chart = null;
 
         this.mainGameBoardElement = document.getElementById('game-board');
+        console.log("Game instance initialized.");
+    }
 
-        // AI Properties
-        this.population = [];
-        this.generation = 0;
-        this.highScore = 0;
-        this.top5Scores = [];
-        this.gameLoopInterval = null;
-        this.gameSpeed = 50;
-        this.genHighScoreData = [];
-        this.genAvgScoreData = [];
-        this.chart = null;
-        this.initChart();
+    // --- Model Management ---
+    loadModels(modelA_JSON, modelB_JSON) {
+        try {
+            this.loadedModels.A = modelA_JSON.trim() ? JSON.parse(modelA_JSON) : null;
+            this.loadedModels.B = modelB_JSON.trim() ? JSON.parse(modelB_JSON) : null;
+            return true;
+        } catch (e) { console.error("JSON Parsing Error:", e); alert("Error parsing models."); return false; }
     }
-    getBestModel() {
-        return this.bestAgentModel;
-    }
+    setActiveModelKey(key) { this.activeModelKey = key; }
+    getActiveModel() { return this.loadedModels[this.activeModelKey] || null; }
+    getBestModel() { return this.getActiveModel(); }
+
     initChart() {
         const ctx = document.getElementById('genHighScoreChart');
         if (ctx) {
             if (this.chart) { this.chart.destroy(); }
+            // This is just a sample config, you can put your full one here.
             this.chart = new window.Chart(ctx, {
-                type: 'line', data: { labels: [], datasets: [{ label: 'Best High Score', data: [], borderColor: 'rgba(75, 192, 192, 1)', backgroundColor: 'rgba(75, 192, 192, 0.2)', fill: true, tension: 0.1 }, { label: 'Average High Score', data: [], borderColor: 'rgba(255, 99, 132, 1)', backgroundColor: 'rgba(255, 99, 132, 0.2)', fill: false, tension: 0.1 }] },
-                options: { responsive: true, plugins: { legend: { display: true }, title: { display: true, text: 'Generation vs High Score' } }, scales: { x: { title: { display: true, text: 'Generation' } }, y: { title: { display: true, text: 'High Score' } } } }
+                type: 'line',
+                data: { labels: [], datasets: [{ label: 'Best High Score', data: [] }, { label: 'Average High Score', data: [] }] },
+                options: { responsive: true, title: { display: true, text: 'Generation vs High Score' } }
             });
         }
     }
 
     updateChart() {
-        if (this.chart) {
-            let data = this.genHighScoreData;
-            let avgData = this.genAvgScoreData;
-            let step = 1;
-            const total = data.length;
-            if (total > 1000) step = 1000;
-            else if (total > 100) step = 100;
-            else if (total > 20) step = 10;
-            else if (total > 10) step = 2;
-            const sampled = data.filter((_, i) => i % step === 0 || i === data.length - 1);
-            const sampledAvg = avgData.filter((_, i) => i % step === 0 || i === avgData.length - 1);
-            this.chart.data.labels = sampled.map(d => d.generation);
-            this.chart.data.datasets[0].data = sampled.map(d => d.highScore);
-            this.chart.data.datasets[1].data = sampledAvg.map(d => d.avgScore);
-            this.chart.update();
-        }
+        if (!this.chart) return; // Guard clause
+
+        this.chart.data.labels = this.genHighScoreData.map(d => d.generation);
+        this.chart.data.datasets[0].data = this.genHighScoreData.map(d => d.highScore);
+        this.chart.data.datasets[1].data = this.genAvgScoreData.map(d => d.avgScore);
+        this.chart.update();
     }
 
+    // --- UPDATED METHOD ---
     switchToAIMode() {
         this.isPlayerMode = false;
-        clearInterval(this.gameLoopInterval);
         ui.hideGameOver();
-        document.getElementById('ai-stats').classList.remove('hidden');
-        document.getElementById('highscore-container').classList.remove('hidden');
-        document.getElementById('agents-container').style.display = 'block';
-        document.getElementById('shapes-container').style.display = 'none';
-        document.getElementById('score-container').style.display = 'none';
+
+        // FIX: The chart is initialized here, ONLY when entering AI mode.
+        this.initChart();
+
+        if (this.mainGameBoardElement) {
+            ui.createBoard(this.mainGameBoardElement, {});
+        }
+
         this.startAISimulation();
     }
 
@@ -82,12 +89,10 @@ export class Game {
         this.isPlayerMode = true;
         clearInterval(this.gameLoopInterval);
         ui.hideGameOver();
-        document.getElementById('ai-stats').classList.add('hidden');
-        document.getElementById('highscore-container').classList.add('hidden');
-        document.getElementById('agents-container').style.display = 'none';
-        document.getElementById('shapes-container').style.display = '';
-        document.getElementById('score-container').style.display = '';
-        document.getElementById('hint-button').disabled = !this.bestAgentModel;
+        const hintButton = document.getElementById('hint-button');
+        if (hintButton) {
+            hintButton.disabled = !this.getActiveModel();
+        }
         this.playerController.init();
     }
 
@@ -96,8 +101,13 @@ export class Game {
     }
 
     startAISimulation() {
+        this.bestAgentModelForOutput = null;
+        ui.updateModelOutput(null);
         this.generation = 1;
         this.highScore = 0;
+        this.top5Scores = [];
+        this.genHighScoreData = []; // Clear chart data
+        this.genAvgScoreData = [];  // Clear chart data
         this.population = Array.from({ length: POPULATION_SIZE }, () => new Agent());
         this.runNextGeneration();
     }
@@ -117,37 +127,31 @@ export class Game {
 
     simulationStep() {
         let aliveCount = 0;
-
         this.activeGames.forEach(game => {
             if (game.isDone) return;
-
             if (game.currentShapes.length === 0) {
-                // Now calls the single, unified function from logic.js
                 const newBatch = logic.generateShapeBatch();
-
-                game.currentBatch = newBatch;
-                game.currentShapes = [...newBatch];
+                game.currentBatch = newBatch; game.currentShapes = [...newBatch];
 
                 if (logic.isGameOver(game.grid, game.currentShapes)) {
-                    game.isDone = true;
-                    game.agent.fitness = game.score;
+                    game.isDone = true; game.agent.fitness = game.score;
                     if (game.score > this.highScore) {
                         this.highScore = game.score;
-                        this.bestAgentModel = { ...game.agent.weights };
+                        this.bestAgentModelForOutput = { ...game.agent.weights };
+                        ui.updateModelOutput(this.bestAgentModelForOutput);
                     }
-                    this.updateTopScores(game.score);
-                    return;
+                    this.updateTopScores(game.score); return;
                 }
             }
-
-            // --- The rest of the simulation step logic is unchanged and correct ---
             const bestMove = game.agent.findBestMove(game.grid, game.currentShapes);
             if (!bestMove) {
-                game.isDone = true;
-                game.agent.fitness = game.score;
-                if (game.score > this.highScore) this.highScore = game.score;
-                this.updateTopScores(game.score);
-                return;
+                game.isDone = true; game.agent.fitness = game.score;
+                if (game.score > this.highScore) {
+                    this.highScore = game.score;
+                    this.bestAgentModelForOutput = { ...game.agent.weights };
+                    ui.updateModelOutput(this.bestAgentModelForOutput);
+                }
+                this.updateTopScores(game.score); return;
             }
             aliveCount++;
             bestMove.shapeData.layout.forEach((row, y) => {
@@ -162,18 +166,21 @@ export class Game {
         });
 
         const bestAgentForDisplay = this.activeGames.length > 0 ? this.activeGames.reduce((best, current) => current.score > best.score ? current : best, this.activeGames[0]) : null;
-        if (bestAgentForDisplay) ui.updateBoard(bestAgentForDisplay.grid, this.mainGameBoardElement);
-
+        if (bestAgentForDisplay) {
+            ui.updateBoard(bestAgentForDisplay.grid, this.mainGameBoardElement);
+        }
         ui.renderAgents(this.activeGames);
         ui.updateAIStats(this.generation, aliveCount, this.highScore);
 
         if (aliveCount === 0 && this.activeGames.length > 0) {
             clearInterval(this.gameLoopInterval); this.gameLoopInterval = null;
             const avgScore = this.activeGames.reduce((sum, g) => sum + g.score, 0) / this.activeGames.length;
-            this.genHighScoreData.push({ generation: this.generation, highScore: this.highScore, avgScore: avgScore });
+            this.genHighScoreData.push({ generation: this.generation, highScore: this.highScore });
+            this.genAvgScoreData.push({ generation: this.generation, avgScore: avgScore });
             this.updateChart();
             this.generation++;
-            this.population = nextGeneration(this.population); this.runNextGeneration();
+            this.population = nextGeneration(this.population);
+            this.runNextGeneration();
         }
     }
 

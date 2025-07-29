@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Player Mode - Color Box Game</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <h1>Color Box Game</h1>
+    <div class="game-container">
+        <div id="game-over-overlay" class="hidden">
+            <div>Game Over!</div>
+            <div id="final-score"></div>
+            <button id="reset-button">Play Again</button>
+        </div>
+        
+        <!-- The main game board -->
+        <div id="game-board" class="grid-8x8"></div>
+
+        <!-- Right-side panel for all player controls -->
+        <div class="right-panel">
+            <div id="player-view">
+                <div id="shapes-container"></div>
+                
+                <div id="score-container" class="score-container">
+                    <h2>Score: <span id="score">0</span></h2>
+                </div>
+                
+                <div class="hint-container">
+                    <button id="hint-button" disabled>Get AI Hint</button>
+                </div>
+                
+                <div id="model-loader-container">
+                    <h4>AI Hint Engine</h4>
+                    <div class="model-input-group">
+                        <label for="model-a-input">Model A:</label>
+                        <textarea id="model-a-input" rows="4" placeholder="Paste trained model A..."></textarea>
+                    </div>
+                    <div class="model-input-group">
+                        <label for="model-b-input">Model B:</label>
+                        <textarea id="model-b-input" rows="4" placeholder="Paste trained model B..."></textarea>
+                    </div>
+                    <button id="load-models-btn">Load Models</button>
+                    <div id="model-selection-container" class="hidden">
+                        <label><input type="radio" name="active-model" value="A" checked> Use Model A</label>
+                        <label><input type="radio" name="active-model" value="B"> Use Model B</label>
+                    </div>
+                </div>
+                
+                 <div class="mode-switch">
+                    <button class="active">Player Mode</button>
+                    <a href="ai_trainer.html"><button>Go to AI Training</button></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- This page only needs main.js to run the controller -->
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

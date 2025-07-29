@@ -68,7 +68,6 @@ function createSingleShapeElement(shapeData) {
             const cell = document.createElement('div');
             if (cellValue === 1) {
                 cell.classList.add('shape-cell');
-                // FIX: This line was missing, causing shapes to be invisible. It's now restored.
                 cell.style.backgroundColor = shapeData.color;
             }
             shapeElement.appendChild(cell);
@@ -107,12 +106,21 @@ export function clearPreview(boardElement) {
 
 // --- High-Level UI Functions (Not part of controller) ---
 export function showGameOver(score) {
-    document.getElementById('final-score').textContent = `Final Score: ${score}`;
-    document.getElementById('game-over-overlay').classList.remove('hidden');
+    const finalScoreEl = document.getElementById('final-score');
+    const gameOverOverlay = document.getElementById('game-over-overlay');
+    // Only proceed if the element is actually on the page.
+    if (finalScoreEl && gameOverOverlay) {
+        finalScoreEl.textContent = `Final Score: ${score}`;
+        gameOverOverlay.classList.remove('hidden');
+    }
 }
 
 export function hideGameOver() {
-    document.getElementById('game-over-overlay').classList.add('hidden');
+    const gameOverOverlay = document.getElementById('game-over-overlay');
+    // Only proceed if the element is actually on the page.
+    if (gameOverOverlay) {
+        gameOverOverlay.classList.add('hidden');
+    }
 }
 
 export function updateAIStats(generation, alive, highScore) {
@@ -132,6 +140,7 @@ export function updateHighScores(scores) {
 }
 
 export function renderAgents(agentGames) {
+
     const container = document.getElementById('agents-list');
     if (!container) return;
     container.innerHTML = '';
@@ -192,21 +201,22 @@ export function renderAgents(agentGames) {
 }
 
 
-/**
- * Applies a visual highlight to the shape the AI suggests.
- */
+export function updateModelOutput(modelWeights) {
+    const outputEl = document.getElementById('best-model-output');
+    if (!outputEl) return;
+    if (modelWeights) {
+        outputEl.value = JSON.stringify(modelWeights, null, 2);
+    } else {
+        outputEl.value = 'Run the simulation to generate a model...';
+    }
+}
 export function highlightHintShape(shapeId) {
-    // We search the main shapes container for the correct shape
     const container = document.getElementById('shapes-container');
     const shapeEl = container.querySelector(`[data-shape*='"id":"${shapeId}"']`);
     if (shapeEl) {
         shapeEl.classList.add('hint-shape');
     }
 }
-
-/**
- * Highlights the cells on the board where the AI would place the shape.
- */
 export function highlightHintPlacement(boardElement, layout, x, y) {
     layout.forEach((row, rY) => {
         row.forEach((cell, rX) => {
@@ -220,10 +230,6 @@ export function highlightHintPlacement(boardElement, layout, x, y) {
         });
     });
 }
-
-/**
- * Removes all visual hints from the board and shapes.
- */
 export function clearAllHighlights() {
     document.querySelectorAll('.hint-shape').forEach(el => el.classList.remove('hint-shape'));
     document.querySelectorAll('.cell.hint-placement').forEach(el => el.classList.remove('hint-placement'));
