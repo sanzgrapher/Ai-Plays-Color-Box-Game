@@ -70,10 +70,9 @@ export class GameController {
     }
 
     generatePlayerShapes() {
-        const newShapes = Array.from({ length: 3 }, (_, i) => ({
-            ...SHAPES[Math.floor(Math.random() * SHAPES.length)],
-            id: `p-${Date.now()}-${i}`
-        }));
+        // Now calls the single, unified function from logic.js
+        const newShapes = logic.generateShapeBatch();
+
         this.state.currentShapes = newShapes;
         // For a new game, the available shapes are the same as the full batch.
         ui.renderShapes(newShapes, newShapes, this.elements.shapesContainer, this.eventHandlers);

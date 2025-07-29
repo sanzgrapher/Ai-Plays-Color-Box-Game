@@ -111,26 +111,34 @@ export class Game {
 
     simulationStep() {
         let aliveCount = 0;
+
         this.activeGames.forEach(game => {
             if (game.isDone) return;
+
             if (game.currentShapes.length === 0) {
-                const newBatch = Array.from({ length: 3 }, (_, i) => ({
-                    ...SHAPES[Math.floor(Math.random() * SHAPES.length)],
-                    id: `g${this.generation}-a${game.agent.id}-${Date.now()}-${i}`
-                }));
+                // Now calls the single, unified function from logic.js
+                const newBatch = logic.generateShapeBatch();
+
                 game.currentBatch = newBatch;
                 game.currentShapes = [...newBatch];
+
                 if (logic.isGameOver(game.grid, game.currentShapes)) {
-                    game.isDone = true; game.agent.fitness = game.score;
+                    game.isDone = true;
+                    game.agent.fitness = game.score;
                     if (game.score > this.highScore) this.highScore = game.score;
-                    this.updateTopScores(game.score); return;
+                    this.updateTopScores(game.score);
+                    return;
                 }
             }
+
+            // --- The rest of the simulation step logic is unchanged and correct ---
             const bestMove = game.agent.findBestMove(game.grid, game.currentShapes);
             if (!bestMove) {
-                game.isDone = true; game.agent.fitness = game.score;
+                game.isDone = true;
+                game.agent.fitness = game.score;
                 if (game.score > this.highScore) this.highScore = game.score;
-                this.updateTopScores(game.score); return;
+                this.updateTopScores(game.score);
+                return;
             }
             aliveCount++;
             bestMove.shapeData.layout.forEach((row, y) => {

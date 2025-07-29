@@ -1,6 +1,17 @@
 import { BOARD_SIZE } from './constants.js';
 import { SHAPES } from './constants.js';
 
+
+
+export function generateShapeBatch() {
+    return Array.from({ length: 3 }, (_, i) => ({
+        ...SHAPES[Math.floor(Math.random() * SHAPES.length)],
+        // A robust unique ID for any context
+        id: `shape-${Date.now()}-${Math.random()}-${i}`
+    }));
+}
+
+
 /**
  * Checks if a shape can be placed at a specific location on the grid.
  */
