@@ -179,11 +179,13 @@ export class Game {
     }
 
     runNextGeneration() {
+        // Generate one set of shapes for all agents
+        const sharedShapes = this.generateSimShapes();
         this.activeGames = this.population.map(agent => ({
             agent,
             grid: Array(BOARD_SIZE * BOARD_SIZE).fill(null),
             score: 0,
-            shapes: this.generateSimShapes(),
+            shapes: sharedShapes.map(s => ({ ...s })), // Deep copy for each agent
             isDone: false
         }));
 

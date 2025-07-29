@@ -7,10 +7,53 @@ export function renderAgents(agents) {
         const div = document.createElement('div');
         div.style.border = '1px solid #ccc';
         div.style.padding = '4px';
-        div.style.width = '90px';
+        div.style.width = '110px';
         div.style.textAlign = 'center';
         div.style.background = agent.isDone ? '#f8d7da' : '#d4edda';
         div.innerHTML = `<b>#${i + 1}</b><br>Score: ${agent.score}<br>${agent.isDone ? 'Game Over' : 'Active'}`;
+
+        // Mini board
+        const board = document.createElement('div');
+        board.style.display = 'grid';
+        board.style.gridTemplateColumns = `repeat(8, 8px)`;
+        board.style.gridTemplateRows = `repeat(8, 8px)`;
+        board.style.gap = '1px';
+        board.style.margin = '2px auto';
+        board.style.width = '70px';
+        board.style.height = '70px';
+        agent.grid.forEach(cell => {
+            const cellDiv = document.createElement('div');
+            cellDiv.style.width = '8px';
+            cellDiv.style.height = '8px';
+            cellDiv.style.background = cell ? cell : '#eee';
+            cellDiv.style.border = '1px solid #ccc';
+            board.appendChild(cellDiv);
+        });
+        div.appendChild(board);
+
+        // Current choice (first shape in shapes array)
+        if (agent.shapes && agent.shapes.length > 0) {
+            const shape = agent.shapes[0];
+            const shapeDiv = document.createElement('div');
+            shapeDiv.style.display = 'inline-block';
+            shapeDiv.style.margin = '2px auto';
+            shapeDiv.innerHTML = '<span style="font-size:10px;">Next:</span><br>';
+            shape.layout.forEach((row, y) => {
+                row.forEach((cell, x) => {
+                    const cellBox = document.createElement('span');
+                    cellBox.style.display = 'inline-block';
+                    cellBox.style.width = '7px';
+                    cellBox.style.height = '7px';
+                    cellBox.style.background = cell ? shape.color : '#eee';
+                    cellBox.style.border = '1px solid #ccc';
+                    cellBox.style.margin = '0px';
+                    shapeDiv.appendChild(cellBox);
+                });
+                shapeDiv.appendChild(document.createElement('br'));
+            });
+            div.appendChild(shapeDiv);
+        }
+
         container.appendChild(div);
     });
 }
