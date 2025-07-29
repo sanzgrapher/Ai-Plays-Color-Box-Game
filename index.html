@@ -9,11 +9,14 @@
 <body>
     <h1>Color Box Game</h1>
     <div class="game-container">
-        <div id="game-board"></div>
-        <div id="shapes-container"></div>
-    </div>
-    <div class="score-container">
-        <h2>Score: <span id="score">0</span></h2>
+        <div id="game-board" class="grid-8x8"></div>
+        <div class="right-panel">
+            <div id="shapes-container"></div>
+            <div class="score-container">
+                <h2>Score: <span id="score">0</span></h2>
+            </div>
+            <button id="reset-button">New Game</button>
+        </div>
     </div>
     <script src="script.js"></script>
 </body>
