@@ -74,18 +74,23 @@ body {
     margin-bottom: 20px;
 }
 
-#reset-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    background-color: #e74c3c;
+#game-over-overlay #reset-button {
+    margin-top: 30px;
+    padding: 15px 30px;
+    font-size: 20px;
+    font-weight: bold;
     color: white;
+    background-color: #e74c3c;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
-#reset-button:hover {
+#game-over-overlay #reset-button:hover {
     background-color: #c0392b;
+    transform: scale(1.05); 
 }
 
 

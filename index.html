@@ -1,3 +1,5 @@
+<!-- FILE: index.html -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,10 +11,10 @@
 <body>
     <h1>Color Box Game</h1>
     <div class="game-container">
-        <!-- Add the overlay here -->
         <div id="game-over-overlay" class="hidden">
             <div>Game Over!</div>
             <div id="final-score"></div>
+            <button id="reset-button">Play Again</button>
         </div>
         <div id="game-board" class="grid-8x8"></div>
         <div class="right-panel">
@@ -20,9 +22,8 @@
             <div class="score-container">
                 <h2>Score: <span id="score">0</span></h2>
             </div>
-            <button id="reset-button">New Game</button>
         </div>
     </div>
-<script type="module" src="js/main.js"></script>
+    <script type="module" src="js/main.js"></script>
 </body>
 </html>
