@@ -105,22 +105,20 @@ body {
 /* =================================
    Shared Components (Board, Cells, Shapes, etc.)
    ================================= */
-#game-board {
-  display: grid;
-  border: 3px solid #333;
-  background-color: #fff;
-  width: fit-content;
-  height: fit-content;
+.game-board {
+    display: grid;
+    border: 3px solid #333;
+    background-color: #fff;
+    width: fit-content;
+    height: fit-content;
 }
+
 .grid-8x8 {
-  grid-template-columns: repeat(8, 50px);
-  grid-template-rows: repeat(8, 50px);
+    grid-template-columns: repeat(8, 50px);
+    grid-template-rows: repeat(8, 50px);
 }
 .cell {
-  width: 50px;
-  height: 50px;
-  border: 1px solid #e0e0e0;
-  box-sizing: border-box;
+    width: 50px; height: 50px; border: 1px solid #e0e0e0; box-sizing: border-box;
 }
 .cell.occupied {
   background-color: #7f8c8d;
@@ -379,3 +377,177 @@ body {
   background-color: rgba(0, 123, 255, 0.25) !important;
   border: 2px dashed #0056b3;
 }
+
+
+/* =================================
+   NEW Comparison Page Layout
+   ================================= */
+.controls-panel {
+    width: 95%;
+    max-width: 1000px;
+    padding: 20px;
+    background-color: #e9ecef;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: flex-end;
+    position: relative;
+}
+.controls-panel .model-input-group {
+    flex-grow: 1;
+    min-width: 300px;
+}
+.controls-panel button {
+    padding: 10px 20px;
+    font-size: 16px;
+    height: fit-content;
+}
+#shared-shape-panel {
+    text-align: center;
+    min-width: 150px;
+}
+#shared-shape-panel h4 {
+    margin: 0 0 5px 0;
+}
+#shared-shape-container {
+    display: flex;
+    justify-content: center;
+}
+
+.battle-ground {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.model-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.board-wrapper {
+    position: relative; /* For the overlay */
+}
+.status-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(120, 20, 20, 0.75);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 3em;
+    font-weight: bold;
+    border-radius: 5px;
+}
+.score-container.winning {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: 1px solid #c3e6cb;
+    font-weight: bold;
+}
+.full-width-switch {
+    width: 95%;
+    max-width: 1000px;
+    margin-top: 30px;
+}
+
+
+#shared-shape-panel {
+    text-align: center;
+    min-width: 250px; /* Wider to accommodate a batch */
+    background-color: white;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+#shared-shape-panel h4 {
+    margin: 0 0 10px 0;
+}
+#shared-shape-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    min-height: 60px; /* Taller for the shapes */
+}
+.chart-wrapper {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    border: 1px solid #ddd;
+}
+.chart-wrapper h3 {
+    text-align: center;
+    margin: 0 0 15px 0;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+}
+.control-group label {
+    font-weight: bold;
+    font-size: 0.9em;
+}
+.control-group input[type="number"] {
+    width: 100px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+}
+ 
+
+/* NEW style for the progress indicator text */
+#progress-indicator {
+     text-align: center;
+    width: 100%;
+    margin-top: 10px;
+    font-weight: bold;
+    color: #0056b3;
+}
+
+.shape-panel {
+    width: 100%;
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    box-sizing: border-box;
+}
+.shape-panel h4 {
+    margin: 0 0 10px 0;
+    text-align: center;
+    font-size: 0.9em;
+}
+.shape-panel .shape-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    min-height: 40px;
+}
+/* Use a smaller size for the batch display shapes */
+.shape-panel .shape-container .shape {
+    border: 1px solid #ddd;
+    background-color: white;
+}
+.shape-panel .shape-container .shape-cell {
+    width: 15px;
+    height: 15px;
+}
+
+
+

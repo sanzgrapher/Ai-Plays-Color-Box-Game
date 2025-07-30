@@ -21,7 +21,7 @@
       <!-- SECTION 1: Two-Column Layout -->
       <div class="top-section">
         <!-- Column 1: Board Visualizer -->
-        <div id="game-board" class="grid-8x8"></div>
+        <div id="game-board" class="game-board grid-8x8"></div>
 
         <!-- Column 2: Data Panels -->
         <div class="data-panel">
@@ -32,21 +32,23 @@
           </div>
         </div>
         <div class="mode-switch">
-        <a href="player.html"><button>Go to Player Mode</button></a>
-        <button class="active">AI Training</button>
-      </div>
+          <a href="player.html"><button>Go to Player Mode</button></a>
+          <button class="active">AI Training</button>
+        </div>
       </div>
 
-    <div style="width: 100%; display: flex">
-      <div class="chart-container" style="flex: 0 0 75%; max-width: 75%;">
-        <h3>Generation vs High Score</h3>
-        <canvas id="genHighScoreChart"></canvas>
+      <div style="width: 100%; display: flex">
+        <div class="chart-container" style="flex: 0 0 75%; max-width: 75%">
+          <h3>Generation vs High Score</h3>
+          <canvas id="genHighScoreChart"></canvas>
+          <h3>Agent Scores After Death</h3>
+          <canvas id="agentScoresChart"></canvas>
+        </div>
+        <div id="highscore-container" style="flex: 0 0 25%; max-width: 25%">
+          <h3>Top 5 Scores</h3>
+          <ol id="highscore-list"></ol>
+        </div>
       </div>
-      <div id="highscore-container" style="flex: 0 0 25%; max-width: 25%;">
-        <h3>Top 5 Scores</h3>
-        <ol id="highscore-list"></ol>
-      </div>
-    </div>
       <br />
 
       <!-- SECTION 2: Full-Width Agent List -->
@@ -56,7 +58,6 @@
       </div>
 
       <!-- Page Navigation -->
-      
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
