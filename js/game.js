@@ -29,8 +29,10 @@ export class Game {
 
         // Chart State
         this.genHighScoreData = []; this.genAvgScoreData = [];
+        this.agentScoresData = [];
         // FIX: Chart is now correctly initialized on-demand, not here.
         this.chart = null;
+        this.agentScoresChart = null;
 
         this.mainGameBoardElement = document.getElementById('game-board');
         console.log("Game instance initialized.");
@@ -52,22 +54,37 @@ export class Game {
         const ctx = document.getElementById('genHighScoreChart');
         if (ctx) {
             if (this.chart) { this.chart.destroy(); }
-            // This is just a sample config, you can put your full one here.
             this.chart = new window.Chart(ctx, {
                 type: 'line',
                 data: { labels: [], datasets: [{ label: 'Best High Score', data: [] }, { label: 'Average High Score', data: [] }] },
                 options: { responsive: true, title: { display: true, text: 'Generation vs High Score' } }
             });
         }
+        // Agent Scores Chart
+        const agentScoresCtx = document.getElementById('agentScoresChart');
+        if (agentScoresCtx) {
+            if (this.agentScoresChart) { this.agentScoresChart.destroy(); }
+            this.agentScoresChart = new window.Chart(agentScoresCtx, {
+                type: 'bar',
+                data: { labels: [], datasets: [{ label: 'Agent Score After Death', data: [], backgroundColor: 'rgba(54, 162, 235, 0.5)' }] },
+                options: { responsive: true, title: { display: true, text: 'All Agent Scores After Death' } }
+            });
+        }
     }
 
     updateChart() {
-        if (!this.chart) return; // Guard clause
-
-        this.chart.data.labels = this.genHighScoreData.map(d => d.generation);
-        this.chart.data.datasets[0].data = this.genHighScoreData.map(d => d.highScore);
-        this.chart.data.datasets[1].data = this.genAvgScoreData.map(d => d.avgScore);
-        this.chart.update();
+        if (this.chart) {
+            this.chart.data.labels = this.genHighScoreData.map(d => d.generation);
+            this.chart.data.datasets[0].data = this.genHighScoreData.map(d => d.highScore);
+            this.chart.data.datasets[1].data = this.genAvgScoreData.map(d => d.avgScore);
+            this.chart.update();
+        }
+        // Update agent scores chart
+        if (this.agentScoresChart) {
+            this.agentScoresChart.data.labels = this.agentScoresData.map((d, i) => `Agent ${i + 1}`);
+            this.agentScoresChart.data.datasets[0].data = this.agentScoresData;
+            this.agentScoresChart.update();
+        }
     }
 
     // --- UPDATED METHOD ---
@@ -108,11 +125,13 @@ export class Game {
         this.top5Scores = [];
         this.genHighScoreData = []; // Clear chart data
         this.genAvgScoreData = [];  // Clear chart data
+        this.agentScoresData = [];
         this.population = Array.from({ length: POPULATION_SIZE }, () => new Agent());
         this.runNextGeneration();
     }
 
     runNextGeneration() {
+        this.highScore = 0; // Reset for each generation
         this.activeGames = this.population.map((agent, index) => {
             agent.id = index;
             return {
@@ -174,6 +193,8 @@ export class Game {
 
         if (aliveCount === 0 && this.activeGames.length > 0) {
             clearInterval(this.gameLoopInterval); this.gameLoopInterval = null;
+            // Collect all agent scores after death
+            this.agentScoresData = this.activeGames.map(g => g.score);
             const avgScore = this.activeGames.reduce((sum, g) => sum + g.score, 0) / this.activeGames.length;
             this.genHighScoreData.push({ generation: this.generation, highScore: this.highScore });
             this.genAvgScoreData.push({ generation: this.generation, avgScore: avgScore });
