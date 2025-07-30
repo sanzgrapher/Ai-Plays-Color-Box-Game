@@ -25,7 +25,9 @@ export class Game {
         // AI Simulation State
         this.population = []; this.generation = 0; this.highScore = 0;
         this.top5Scores = []; this.gameLoopInterval = null; this.gameSpeed = 50;
-        this.bestAgentModelForOutput = null; this.isPaused = false;
+        this.bestAgentModelForOutput = null;
+        this.worstAgentModelForOutput = null;
+        this.isPaused = false;
 
         // Chart State
         this.genHighScoreData = []; this.genAvgScoreData = [];
@@ -151,13 +153,11 @@ export class Game {
             if (game.currentShapes.length === 0) {
                 const newBatch = logic.generateShapeBatch();
                 game.currentBatch = newBatch; game.currentShapes = [...newBatch];
-
                 if (logic.isGameOver(game.grid, game.currentShapes)) {
                     game.isDone = true; game.agent.fitness = game.score;
                     if (game.score > this.highScore) {
                         this.highScore = game.score;
                         this.bestAgentModelForOutput = { ...game.agent.weights };
-                        ui.updateModelOutput(this.bestAgentModelForOutput);
                     }
                     this.updateTopScores(game.score); return;
                 }
@@ -168,7 +168,6 @@ export class Game {
                 if (game.score > this.highScore) {
                     this.highScore = game.score;
                     this.bestAgentModelForOutput = { ...game.agent.weights };
-                    ui.updateModelOutput(this.bestAgentModelForOutput);
                 }
                 this.updateTopScores(game.score); return;
             }
@@ -199,6 +198,53 @@ export class Game {
             this.genHighScoreData.push({ generation: this.generation, highScore: this.highScore });
             this.genAvgScoreData.push({ generation: this.generation, avgScore: avgScore });
             this.updateChart();
+            // Set Champion, Robust, and Weakest Model Output
+            if (this.activeGames.length > 0) {
+                // Champion: highest score ever
+                const prevBestAgent = this.activeGames.reduce((best, current) => current.score > best.score ? current : best, this.activeGames[0]);
+
+                // Track overall weakest agent ever
+                if (!this.overallWeakestAgent || this.activeGames.some(a => a.score < this.overallWeakestAgent.score)) {
+                    const currentGenWeakest = this.activeGames.reduce((worst, current) => current.score < worst.score ? current : worst, this.activeGames[0]);
+                    if (!this.overallWeakestAgent || currentGenWeakest.score < this.overallWeakestAgent.score) {
+                        this.overallWeakestAgent = {
+                            score: currentGenWeakest.score,
+                            weights: { ...currentGenWeakest.agent.weights }
+                        };
+                    }
+                }
+
+                // Robust: generation with highest avgScore and stable trend
+                let robustGenIndex = 0;
+                let maxAvgScore = -Infinity;
+                for (let i = 1; i < this.genAvgScoreData.length - 1; i++) {
+                    const prev = this.genAvgScoreData[i - 1].avgScore;
+                    const curr = this.genAvgScoreData[i].avgScore;
+                    const next = this.genAvgScoreData[i + 1].avgScore;
+                    if (curr > maxAvgScore && Math.abs(curr - prev) < curr * 0.2 && Math.abs(curr - next) < curr * 0.2) {
+                        maxAvgScore = curr;
+                        robustGenIndex = i;
+                    }
+                }
+                if (maxAvgScore === -Infinity && this.genAvgScoreData.length > 0) {
+                    robustGenIndex = this.genAvgScoreData.reduce((bestIdx, d, idx, arr) => d.avgScore > arr[bestIdx].avgScore ? idx : bestIdx, 0);
+                }
+                let robustAgentWeights = null;
+                if (this.genAvgScoreData.length > 0 && robustGenIndex < this.genAvgScoreData.length) {
+                    const robustGen = this.genAvgScoreData[robustGenIndex].generation;
+                    if (robustGen === this.generation) {
+                        const robustBestAgent = this.activeGames.reduce((best, current) => current.score > best.score ? current : best, this.activeGames[0]);
+                        robustAgentWeights = { ...robustBestAgent.agent.weights };
+                    } else {
+                        robustAgentWeights = { ...prevBestAgent.agent.weights };
+                    }
+                }
+
+                this.bestAgentModelForOutput = { ...prevBestAgent.agent.weights };
+                this.worstAgentModelForOutput = this.overallWeakestAgent ? { ...this.overallWeakestAgent.weights } : null;
+                this.robustAgentModelForOutput = robustAgentWeights;
+                ui.updateModelOutput({ best: this.bestAgentModelForOutput, robust: this.robustAgentModelForOutput, worst: this.worstAgentModelForOutput });
+            }
             this.generation++;
             this.population = nextGeneration(this.population);
             this.runNextGeneration();

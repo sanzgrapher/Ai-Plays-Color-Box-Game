@@ -202,12 +202,24 @@ export function renderAgents(agentGames) {
 
 
 export function updateModelOutput(modelWeights) {
-    const outputEl = document.getElementById('best-model-output');
-    if (!outputEl) return;
-    if (modelWeights) {
-        outputEl.value = JSON.stringify(modelWeights, null, 2);
+    const bestEl = document.getElementById('best-model-output');
+    const robustEl = document.getElementById('robust-model-output');
+    const worstEl = document.getElementById('worst-model-output');
+    if (!bestEl || !robustEl || !worstEl) return;
+    if (modelWeights && modelWeights.best) {
+        bestEl.value = JSON.stringify(modelWeights.best, null, 2);
     } else {
-        outputEl.value = 'Run the simulation to generate a model...';
+        bestEl.value = 'Run the simulation to generate a model...';
+    }
+    if (modelWeights && modelWeights.robust) {
+        robustEl.value = JSON.stringify(modelWeights.robust, null, 2);
+    } else {
+        robustEl.value = 'Run the simulation to generate a model...';
+    }
+    if (modelWeights && modelWeights.worst) {
+        worstEl.value = JSON.stringify(modelWeights.worst, null, 2);
+    } else {
+        worstEl.value = 'Run the simulation to generate a model...';
     }
 }
 export function highlightHintShape(shapeId) {

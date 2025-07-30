@@ -26,9 +26,57 @@
         <!-- Column 2: Data Panels -->
         <div class="data-panel">
           <div id="model-output-container">
-            <h4>Best Model Output</h4>
-            <p>Copy this JSON data after training is complete.</p>
-            <textarea id="best-model-output" readonly rows="5"></textarea>
+            <h4>Model Output Summary</h4>
+            <div
+              style="
+                font-size: 0.98em;
+                margin-bottom: 1em;
+                background: #f8f9fa;
+                border-radius: 8px;
+                padding: 10px;
+                border: 1px solid #eee;
+              "
+            >
+              <b>How to choose the best model:</b><br />
+              <ul style="margin: 0 0 0 1.2em">
+                <li>
+                  <b>Champion Model:</b> The agent with the highest score ever
+                  (blue line peak). This is your "flash in the pan" candidate.
+                </li>
+                <li>
+                  <b>Robust Model:</b> Look for generations where the pink
+                  average line is high and stable. These models are more
+                  reliable across many shape sequences.
+                </li>
+              </ul>
+              <div style="margin-top: 0.5em; color: #888">
+                <b>Tip:</b> For most players, a robust model (high pink line)
+                will perform better in unpredictable games.<br />
+                For experiments, try both the champion and robust models in
+                <a href="compare.html">Model Comparison</a>.
+              </div>
+            </div>
+            <h4>Champion Model Output (Highest Score)</h4>
+            <textarea
+              id="best-model-output"
+              readonly
+              rows="5"
+              style="margin-bottom: 1em; width: 100%"
+            ></textarea>
+            <h4>Robust Model Output (High & Stable Average)</h4>
+            <textarea
+              id="robust-model-output"
+              readonly
+              rows="5"
+              style="margin-bottom: 1em; width: 100%"
+            ></textarea>
+            <h4>Weakest Model Output</h4>
+            <textarea
+              id="worst-model-output"
+              readonly
+              rows="5"
+              style="width: 100%"
+            ></textarea>
           </div>
         </div>
         <div class="mode-switch">

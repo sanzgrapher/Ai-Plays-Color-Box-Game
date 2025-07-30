@@ -1,73 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Model Comparison - Color Box Game</title>
     <link rel="stylesheet" href="style.css" />
-</head>
-<body>
+  </head>
+  <body>
     <h1>AI Model Comparison</h1>
 
     <div class="controls-panel">
-        <div class="model-input-group">
-            <label for="model-a-input">Model A:</label>
-            <textarea id="model-a-input" rows="5" placeholder="Paste model A weights here..."></textarea>
+      <div class="model-input-group">
+        <label for="model-a-input">Model A:</label>
+        <textarea
+          id="model-a-input"
+          rows="5"
+          placeholder="Paste model A weights here..."
+        ></textarea>
+      </div>
+      <div class="model-input-group">
+        <label for="model-b-input">Model B:</label>
+        <textarea
+          id="model-b-input"
+          rows="5"
+          placeholder="Paste model B weights here..."
+        ></textarea>
+      </div>
+      <div class="control-group">
+        <label for="game-count-input">Number of Games to Run:</label>
+        <input
+          type="number"
+          id="game-count-input"
+          value="5"
+          min="1"
+          max="1000"
+        />
+      </div>
+      <div class="control-group">
+        <label>Simulation Controls:</label>
+        <div class="button-group">
+          <button id="start-comparison-btn">Start Comparison</button>
+          <button id="speed-toggle">Speed: 1x</button>
+          <button id="pause-toggle">Pause</button>
         </div>
-        <div class="model-input-group">
-            <label for="model-b-input">Model B:</label>
-            <textarea id="model-b-input" rows="5" placeholder="Paste model B weights here..."></textarea>
-        </div>
-        <div class="control-group">
-            <label for="game-count-input">Number of Games to Run:</label>
-            <input type="number" id="game-count-input" value="5" min="1" max="1000">
-        </div>
-        <div class="control-group">
-            <label>Simulation Controls:</label>
-            <div class="button-group">
-                <button id="start-comparison-btn">Start Comparison</button>
-                <button id="speed-toggle">Speed: 1x</button>
-                <button id="pause-toggle">Pause</button>
-            </div>
-        </div>
-        <div id="progress-indicator">Load models and start comparison.</div>
+      </div>
+      <div id="progress-indicator">Load models and start comparison.</div>
     </div>
-    
+
     <div class="battle-ground">
-        <div class="model-column">
-            <h2>Model A</h2>
-            <div id="score-container-a" class="score-container">Current Score: <span>0</span></div>
-            <div id="shape-panel-a" class="shape-panel"><h4>Shape Batch</h4><div class="shape-container"></div></div>
-            <div class="board-wrapper">
-                <div id="game-over-a" class="status-overlay hidden">Game Over!</div>
-                <div id="game-board-a" class="game-board grid-8x8"></div>
-            </div>
+      <div class="model-column">
+        <h2>Model A</h2>
+        <div id="score-container-a" class="score-container">
+          Current Score: <span>0</span>
         </div>
-        <div class="model-column">
-            <h2>Model B</h2>
-            <div id="score-container-b" class="score-container">Current Score: <span>0</span></div>
-            <div id="shape-panel-b" class="shape-panel"><h4>Shape Batch</h4><div class="shape-container"></div></div>
-            <div class="board-wrapper">
-                <div id="game-over-b" class="status-overlay hidden">Game Over!</div>
-                <div id="game-board-b" class="game-board grid-8x8"></div>
-            </div>
+        <div id="shape-panel-a" class="shape-panel">
+          <h4>Shape Batch</h4>
+          <div class="shape-container"></div>
         </div>
+        <div class="board-wrapper">
+          <div id="game-over-a" class="status-overlay hidden">Game Over!</div>
+          <div id="game-board-a" class="game-board grid-8x8"></div>
+        </div>
+      </div>
+      <div class="model-column">
+        <h2>Model B</h2>
+        <div id="score-container-b" class="score-container">
+          Current Score: <span>0</span>
+        </div>
+        <div id="shape-panel-b" class="shape-panel">
+          <h4>Shape Batch</h4>
+          <div class="shape-container"></div>
+        </div>
+        <div class="board-wrapper">
+          <div id="game-over-b" class="status-overlay hidden">Game Over!</div>
+          <div id="game-board-b" class="game-board grid-8x8"></div>
+        </div>
+      </div>
     </div>
 
     <div class="full-width-container chart-wrapper">
-        <h3>Model Score Per Game</h3>
-        <canvas id="comparisonChart"></canvas>
+      <h3>Model Score Per Game</h3>
+      <canvas id="comparisonChart"></canvas>
+      <h3>Model Average Score Per Game</h3>
+      <canvas id="averageScoreChart"></canvas>
+      <button id="copy-chart-data-btn" style="margin-top: 1em">
+        Copy Chart Data as JSON
+      </button>
+      <div
+        id="model-insights"
+        style="
+          margin-top: 2em;
+          padding: 1em;
+          background: #f8f9fa;
+          border-radius: 8px;
+          border: 1px solid #eee;
+          font-size: 1.05em;
+        "
+      ></div>
     </div>
-    
-    <div class="mode-switch full-width-switch">
 
-        <button id="switch-to-player-mode" class="action-btn">Switch to Player Mode</button>
-        <button id="switch-to-ai-mode" class="action-btn">Switch to AI Mode</button>
-        
-     
+    <div class="mode-switch full-width-switch">
+      <button id="switch-to-player-mode" class="action-btn">
+        Switch to Player Mode
+      </button>
+      <button id="switch-to-ai-mode" class="action-btn">
+        Switch to AI Mode
+      </button>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="module" src="js/compare.js"></script>
-</body>
+  </body>
 </html>

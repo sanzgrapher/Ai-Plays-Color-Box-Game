@@ -34,17 +34,15 @@ function initializeChart() {
     if (!ctx) return;
     if (comparisonChart) { comparisonChart.destroy(); }
     comparisonChart = new Chart(ctx, {
-        type: 'line', // CHANGED to line chart
+        type: 'line',
         data: {
-            labels: [], // Game numbers
+            labels: [],
             datasets: [
                 {
-                    label: 'Model A Score', data: [], borderColor: 'rgba(54, 162, 235, 1)',
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)', fill: true, tension: 0.1
+                    label: 'Model A Score', data: [], borderColor: 'rgba(54, 162, 235, 1)', backgroundColor: 'rgba(54, 162, 235, 0.2)', fill: true, tension: 0.1
                 },
                 {
-                    label: 'Model B Score', data: [], borderColor: 'rgba(255, 99, 132, 1)',
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)', fill: true, tension: 0.1
+                    label: 'Model B Score', data: [], borderColor: 'rgba(255, 99, 132, 1)', backgroundColor: 'rgba(255, 99, 132, 0.2)', fill: true, tension: 0.1
                 }
             ]
         },
@@ -55,16 +53,90 @@ function initializeChart() {
             }
         }
     });
+
+    // Average Score Chart
+    const avgCtx = document.getElementById('averageScoreChart');
+    if (avgCtx) {
+        if (window.averageScoreChart && typeof window.averageScoreChart.destroy === 'function') {
+            window.averageScoreChart.destroy();
+        }
+        window.averageScoreChart = new Chart(avgCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Model A', 'Model B'],
+                datasets: [{
+                    label: 'Average Score',
+                    data: [0, 0],
+                    backgroundColor: ['rgba(54, 162, 235, 0.7)', 'rgba(255, 99, 132, 0.7)'],
+                    borderColor: ['rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    x: { title: { display: true, text: 'Model' } },
+                    y: { title: { display: true, text: 'Average Score' }, beginAtZero: true }
+                }
+            }
+        });
+    }
 }
 
 function updateChart() {
     if (!comparisonChart) return;
     // Labels are game numbers: 1, 2, 3, ...
-    comparisonChart.data.labels = scoresA.map((_, i) => i + 1);
+    const labels = scoresA.map((_, i) => i + 1);
+    comparisonChart.data.labels = labels;
     comparisonChart.data.datasets[0].data = scoresA;
     comparisonChart.data.datasets[1].data = scoresB;
     comparisonChart.update();
+
+    // Update simple average score bar chart
+    if (window.averageScoreChart) {
+        const avgA = scoresA.length ? (scoresA.reduce((a, b) => a + b, 0) / scoresA.length).toFixed(2) : 0;
+        const avgB = scoresB.length ? (scoresB.reduce((a, b) => a + b, 0) / scoresB.length).toFixed(2) : 0;
+        window.averageScoreChart.data.datasets[0].data = [avgA, avgB];
+        window.averageScoreChart.update();
+    }
+
+    // Insights
+    const insightsEl = document.getElementById('model-insights');
+    if (insightsEl) {
+        const totalGames = scoresA.length;
+        const winsA = scoresA.filter((score, i) => score > scoresB[i]).length;
+        const winsB = scoresB.filter((score, i) => score > scoresA[i]).length;
+        const ties = scoresA.filter((score, i) => score === scoresB[i]).length;
+        const avgA = totalGames ? (scoresA.reduce((a, b) => a + b, 0) / totalGames).toFixed(2) : 0;
+        const avgB = totalGames ? (scoresB.reduce((a, b) => a + b, 0) / totalGames).toFixed(2) : 0;
+        const maxA = Math.max(...scoresA, 0);
+        const maxB = Math.max(...scoresB, 0);
+        const minA = Math.min(...scoresA, 0);
+        const minB = Math.min(...scoresB, 0);
+        insightsEl.innerHTML = `
+            <b>Model Insights</b><br>
+            <ul style="margin:0 0 0 1.2em">
+                <li><b>Model A</b>: Avg Score <b>${avgA}</b>, Max <b>${maxA}</b>, Min <b>${minA}</b></li>
+                <li><b>Model B</b>: Avg Score <b>${avgB}</b>, Max <b>${maxB}</b>, Min <b>${minB}</b></li>
+                <li><b>Win %</b>: Model A <b>${((winsA / totalGames) * 100).toFixed(1)}%</b>, Model B <b>${((winsB / totalGames) * 100).toFixed(1)}%</b>, Ties <b>${((ties / totalGames) * 100).toFixed(1)}%</b></li>
+            </ul>
+        `;
+    }
 }
+
+// --- Copy Chart Data as JSON ---
+window.addEventListener('DOMContentLoaded', () => {
+    const copyBtn = document.getElementById('copy-chart-data-btn');
+    if (copyBtn) {
+        copyBtn.addEventListener('click', () => {
+            const chartData = {
+                modelA: scoresA,
+                modelB: scoresB
+            };
+            navigator.clipboard.writeText(JSON.stringify(chartData, null, 2));
+            alert('Chart data copied to clipboard!');
+        });
+    }
+});
 
 // --- Game Logic ---
 function startNextGame() {
