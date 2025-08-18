@@ -1,5 +1,6 @@
 // js/main.js
 import { Game } from './game.js';
+import { populateShapesCarousel } from './ui.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     // A single Game instance holds all possible application logic
@@ -41,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Initialize the page in Player Mode
         game.switchToPlayerMode();
 
-    } else if (document.getElementById('model-output-container')) {
+    } else if (document.getElementById('best-model-output')) {
         // --- This code runs ONLY on ai_trainer.html ---
         const speedToggle = document.getElementById('speed-toggle');
         const pauseToggle = document.getElementById('pause-toggle');
@@ -50,10 +51,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function updateSpeed() {
             game.gameSpeed = 50 / speedLevels[speedIndex];
-            speedToggle.textContent = `Speed: ${speedLevels[speedIndex]}x`;
+            speedToggle.textContent = `⚡ Speed: ${speedLevels[speedIndex]}x`;
             if (!game.isPaused && game.gameLoopInterval) {
                 clearInterval(game.gameLoopInterval);
                 game.gameLoopInterval = setInterval(() => game.simulationStep(), game.gameSpeed);
+            }
+        }
+
+        function updateTrainingStatus() {
+            const statusEl = document.getElementById('training-status');
+            if (statusEl) {
+                if (game.isPaused) {
+                    statusEl.textContent = 'PAUSED';
+                    statusEl.className = 'text-xs text-yellow-400 font-mono font-bold';
+                } else {
+                    statusEl.textContent = 'TRAINING';
+                    statusEl.className = 'text-xs text-green-400 font-mono font-bold';
+                }
             }
         }
 
@@ -64,7 +78,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         pauseToggle.addEventListener('click', () => {
             game.isPaused = !game.isPaused;
-            pauseToggle.textContent = game.isPaused ? 'Resume' : 'Pause';
+            pauseToggle.textContent = game.isPaused ? '▶ Resume' : '⏸ Pause';
+            updateTrainingStatus();
             if (game.isPaused) {
                 clearInterval(game.gameLoopInterval);
             } else {
@@ -73,6 +88,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         updateSpeed(); // Set initial speed
+        updateTrainingStatus(); // Set initial status
+        
+        // Populate the shapes carousel
+        populateShapesCarousel();
+        
         // Initialize the page in AI Mode
         game.switchToAIMode();
     }

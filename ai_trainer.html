@@ -4,109 +4,304 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI Trainer - Color Box Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="style.css" />
   </head>
-  <body>
-    <h1>AI Trainer</h1>
-    <div id="ai-stats">
-      <span>Generation: <b id="generation-stat">0</b></span>
-      <span>Alive: <b id="alive-stat">0</b></span>
-      <span>High Score: <b id="highscore-stat">0</b></span>
-      <button id="speed-toggle">Speed: 1x</button>
-      <button id="pause-toggle">Pause</button>
-    </div>
-
-    <!-- Main container for the new trainer layout -->
-    <div class="trainer-content">
-      <!-- SECTION 1: Two-Column Layout -->
-      <div class="top-section">
-        <!-- Column 1: Board Visualizer -->
-        <div id="game-board" class="game-board grid-8x8"></div>
-
-        <!-- Column 2: Data Panels -->
-        <div class="data-panel">
-          <div id="model-output-container">
-            <h4>Model Output Summary</h4>
-            <div
-              style="
-                font-size: 0.98em;
-                margin-bottom: 1em;
-                background: #f8f9fa;
-                border-radius: 8px;
-                padding: 10px;
-                border: 1px solid #eee;
-              "
-            >
-              <b>How to choose the best model:</b><br />
-              <ul style="margin: 0 0 0 1.2em">
-                <li>
-                  <b>Champion Model:</b> The agent with the highest score ever
-                  (blue line peak). This is your "flash in the pan" candidate.
-                </li>
-                <li>
-                  <b>Robust Model:</b> Look for generations where the pink
-                  average line is high and stable. These models are more
-                  reliable across many shape sequences.
-                </li>
-              </ul>
-              <div style="margin-top: 0.5em; color: #888">
-                <b>Tip:</b> For most players, a robust model (high pink line)
-                will perform better in unpredictable games.<br />
-                For experiments, try both the champion and robust models in
-                <a href="compare.html">Model Comparison</a>.
-              </div>
-            </div>
-            <h4>Champion Model Output (Highest Score)</h4>
-            <textarea
-              id="best-model-output"
-              readonly
-              rows="5"
-              style="margin-bottom: 1em; width: 100%"
-            ></textarea>
-            <h4>Robust Model Output (High & Stable Average)</h4>
-            <textarea
-              id="robust-model-output"
-              readonly
-              rows="5"
-              style="margin-bottom: 1em; width: 100%"
-            ></textarea>
-            <h4>Weakest Model Output</h4>
-            <textarea
-              id="worst-model-output"
-              readonly
-              rows="5"
-              style="width: 100%"
-            ></textarea>
+  <body class="bg-gray-50 font-sans">
+    
+    <!-- Header with AI Stats -->
+    <header class="bg-white border-b">
+      <div class="max-w-full px-6 py-4">
+        <div class="flex items-center justify-between">
+          <h1 class="text-2xl font-bold text-gray-900">AI Trainer</h1>
+          
+          <!-- Mode Switch -->
+          <div class="flex bg-gray-100 rounded-lg p-1">
+            <a href="player.html" class="px-4 py-2 text-gray-600 hover:bg-white hover:shadow-sm rounded">Player</a>
+            <button class="px-4 py-2 bg-blue-600 text-white rounded shadow-sm">AI Training</button>
           </div>
         </div>
-        <div class="mode-switch">
-          <a href="player.html"><button>Go to Player Mode</button></a>
-          <button class="active">AI Training</button>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-full p-6">
+      
+      <!-- Primary Section: Live Game + Top Scores | Charts + Model Outputs -->
+      <div class="grid grid-cols-12 gap-6 mb-6">
+        
+        <!-- Live Game Board (Left Column) -->
+        <div class="col-span-4">
+          <!-- Fluid Connected Live Game + Controls -->
+          <div class="fluid-container">
+            <!-- Live Game Board (Upper Fluid) -->
+            <div class="fluid-section game-board-fluid">
+              <div id="game-board" class="game-board grid-8x8"></div>
+            </div>
+            
+            <!-- Control Panel (Lower Fluid) -->
+            <div class="fluid-section control-panel-fluid">
+              <!-- Status Indicators -->
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-3 text-xs">
+                  <div class="flex items-center gap-1.5">
+                    <div class="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                    <span class="text-slate-300 font-medium">GEN</span>
+                    <span class="font-mono text-blue-400 font-bold text-sm" id="generation-stat">0</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <div class="w-2 h-2 bg-green-400 rounded-full"></div>
+                    <span class="text-slate-300 font-medium">ACTIVE</span>
+                    <span class="font-mono text-green-400 font-bold text-sm" id="alive-stat">0</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <div class="w-2 h-2 bg-yellow-400 rounded-full"></div>
+                    <span class="text-slate-300 font-medium">PEAK</span>
+                    <span class="font-mono text-yellow-400 font-bold text-sm" id="highscore-stat">0</span>
+                  </div>
+                </div>
+                <div class="text-xs text-green-400 font-mono font-bold" id="training-status">TRAINING</div>
+              </div>
+              
+              <!-- Control Interface -->
+              <div class="flex gap-2">
+                <button id="speed-toggle" class="flex-1 bg-slate-700/80 hover:bg-slate-600 border border-slate-500 text-slate-200 px-3 py-1.5 rounded text-xs font-mono uppercase tracking-wider transition-all hover:border-slate-400">
+                  ⚡ Speed: 1x
+                </button>
+                <button id="pause-toggle" class="flex-1 bg-slate-700/80 hover:bg-slate-600 border border-slate-500 text-slate-200 px-3 py-1.5 rounded text-xs font-mono uppercase tracking-wider transition-all hover:border-slate-400">
+                  ⏸ Pause
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Charts + Model Outputs (Right Column) -->
+        <div class="col-span-8 space-y-4">
+          <!-- Charts - Side by Side -->
+          <div class="grid grid-cols-2 gap-4">
+            <!-- Generation Performance Chart -->
+            <div class="bg-white rounded-lg border shadow-sm p-4">
+              <h2 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                📈 Generation
+                <span class="ml-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Live</span>
+              </h2>
+              <div class="bg-gray-50 rounded-lg p-3 h-64 flex flex-col">
+                <canvas id="genHighScoreChart" class="w-full flex-1"></canvas>
+                
+                <!-- Generation Top/Bottom Scores -->
+                <div class="mt-2 pt-2 border-t border-gray-300">
+                  <div class="flex gap-1 overflow-x-auto" id="generation-scores-strip">
+                    <!-- Top 3 -->
+                    <div class="flex-1 bg-yellow-50 border border-yellow-200 rounded px-1 py-1 text-center">
+                      <div class="text-xs text-yellow-700 font-medium">🥇</div>
+                      <div class="text-xs font-bold text-yellow-800" id="gen-top-1">---</div>
+                    </div>
+                    <div class="flex-1 bg-gray-50 border border-gray-200 rounded px-1 py-1 text-center">
+                      <div class="text-xs text-gray-600 font-medium">🥈</div>
+                      <div class="text-xs font-bold text-gray-700" id="gen-top-2">---</div>
+                    </div>
+                    <div class="flex-1 bg-orange-50 border border-orange-200 rounded px-1 py-1 text-center">
+                      <div class="text-xs text-orange-600 font-medium">🥉</div>
+                      <div class="text-xs font-bold text-orange-700" id="gen-top-3">---</div>
+                    </div>
+                    
+                    <!-- Separator -->
+                    <div class="flex-shrink-0 w-px bg-gray-400 mx-1 my-1"></div>
+                    
+                    <!-- Bottom 3 -->
+                    <div class="flex-1 bg-red-50 border border-red-200 rounded px-1 py-1 text-center">
+                      <div class="text-xs text-red-600 font-medium">❌</div>
+                      <div class="text-xs font-bold text-red-700" id="gen-bottom-3">---</div>
+                    </div>
+                    <div class="flex-1 bg-red-50 border border-red-200 rounded px-1 py-1 text-center">
+                      <div class="text-xs text-red-600 font-medium">❌</div>
+                      <div class="text-xs font-bold text-red-700" id="gen-bottom-2">---</div>
+                    </div>
+                    <div class="flex-1 bg-red-50 border border-red-200 rounded px-1 py-1 text-center">
+                      <div class="text-xs text-red-600 font-medium">❌</div>
+                      <div class="text-xs font-bold text-red-700" id="gen-bottom-1">---</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Agent Score Distribution Chart -->
+            <div class="bg-white rounded-lg border shadow-sm p-4">
+              <h2 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                📊 Distribution
+                <span class="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Analysis</span>
+              </h2>
+              <div class="bg-gray-50 rounded-lg p-3 h-64 flex flex-col">
+                <canvas id="agentScoresChart" class="w-full flex-1"></canvas>
+                
+                <!-- Distribution Top/Bottom Scores -->
+                <div class="mt-2 pt-2 border-t border-gray-300">
+                  <div class="flex gap-1 overflow-x-auto" id="distribution-scores-strip">
+                    <!-- Top 3 -->
+                    <div class="flex-1 bg-yellow-50 border border-yellow-200 rounded px-1 py-1 text-center">
+                      <div class="text-xs text-yellow-700 font-medium">🥇</div>
+                      <div class="text-xs font-bold text-yellow-800" id="dist-top-1">---</div>
+                    </div>
+                    <div class="flex-1 bg-gray-50 border border-gray-200 rounded px-1 py-1 text-center">
+                      <div class="text-xs text-gray-600 font-medium">🥈</div>
+                      <div class="text-xs font-bold text-gray-700" id="dist-top-2">---</div>
+                    </div>
+                    <div class="flex-1 bg-orange-50 border border-orange-200 rounded px-1 py-1 text-center">
+                      <div class="text-xs text-orange-600 font-medium">🥉</div>
+                      <div class="text-xs font-bold text-orange-700" id="dist-top-3">---</div>
+                    </div>
+                    
+                    <!-- Separator -->
+                    <div class="flex-shrink-0 w-px bg-gray-400 mx-1 my-1"></div>
+                    
+                    <!-- Bottom 3 -->
+                    <div class="flex-1 bg-red-50 border border-red-200 rounded px-1 py-1 text-center">
+                      <div class="text-xs text-red-600 font-medium">❌</div>
+                      <div class="text-xs font-bold text-red-700" id="dist-bottom-3">---</div>
+                    </div>
+                    <div class="flex-1 bg-red-50 border border-red-200 rounded px-1 py-1 text-center">
+                      <div class="text-xs text-red-600 font-medium">❌</div>
+                      <div class="text-xs font-bold text-red-700" id="dist-bottom-2">---</div>
+                    </div>
+                    <div class="flex-1 bg-red-50 border border-red-200 rounded px-1 py-1 text-center">
+                      <div class="text-xs text-red-600 font-medium">❌</div>
+                      <div class="text-xs font-bold text-red-700" id="dist-bottom-1">---</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Model Outputs -->
+          <div class="bg-white rounded-lg border shadow-sm p-4">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">🧠 Model Outputs</h2>
+            
+            <div class="grid grid-cols-3 gap-4">
+              <div class="border border-green-200 rounded-lg p-3 bg-green-50">
+                <h3 class="font-medium text-green-800 mb-2 flex items-center text-sm">
+                  🏆 Champion
+                  <span class="ml-2 text-xs bg-green-200 px-2 py-1 rounded">Best</span>
+                </h3>
+                <textarea 
+                  id="best-model-output" 
+                  readonly 
+                  rows="4" 
+                  class="w-full text-xs font-mono border border-green-300 rounded p-2 bg-white resize-none"
+                  placeholder="Training in progress..."
+                ></textarea>
+              </div>
+              
+              <div class="border border-blue-200 rounded-lg p-3 bg-blue-50">
+                <h3 class="font-medium text-blue-800 mb-2 flex items-center text-sm">
+                  🛡️ Robust
+                  <span class="ml-2 text-xs bg-blue-200 px-2 py-1 rounded">Stable</span>
+                </h3>
+                <textarea 
+                  id="robust-model-output" 
+                  readonly 
+                  rows="4" 
+                  class="w-full text-xs font-mono border border-blue-300 rounded p-2 bg-white resize-none"
+                  placeholder="Training in progress..."
+                ></textarea>
+              </div>
+              
+              <div class="border border-red-200 rounded-lg p-3 bg-red-50">
+                <h3 class="font-medium text-red-800 mb-2 flex items-center text-sm">
+                  📉 Learning
+                  <span class="ml-2 text-xs bg-red-200 px-2 py-1 rounded">Weak</span>
+                </h3>
+                <textarea 
+                  id="worst-model-output" 
+                  readonly 
+                  rows="4" 
+                  class="w-full text-xs font-mono border border-red-300 rounded p-2 bg-white resize-none"
+                  placeholder="Training in progress..."
+                ></textarea>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div style="width: 100%; display: flex">
-        <div class="chart-container" style="flex: 0 0 75%; max-width: 75%">
-          <h3>Generation vs High Score</h3>
-          <canvas id="genHighScoreChart"></canvas>
-          <h3>Agent Scores After Death</h3>
-          <canvas id="agentScoresChart"></canvas>
-        </div>
-        <div id="highscore-container" style="flex: 0 0 25%; max-width: 25%">
-          <h3>Top 5 Scores</h3>
-          <ol id="highscore-list"></ol>
+      <!-- Available Shapes Carousel -->
+      <div class="bg-white rounded-lg border p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">🧩 Available Game Shapes</h2>
+        <p class="text-gray-600 text-sm mb-4">All possible shapes that can be generated during gameplay. Agents must learn to place these efficiently.</p>
+        
+        <div class="shapes-carousel-wrapper">
+          <div id="shapes-carousel" class="shapes-carousel-scroll">
+            <!-- Shapes will be populated by JavaScript -->
+          </div>
+          <!-- Shape Type Labels as caption -->
+          <div class="shape-labels-caption">
+            <!-- Labels will be populated by JavaScript -->
+          </div>
         </div>
       </div>
-      <br />
 
-      <!-- SECTION 2: Full-Width Agent List -->
-      <div id="agents-container">
-        <h3>Current Generation Agents</h3>
-        <div id="agents-list"></div>
+      <!-- Current Generation Agents -->
+      <div class="bg-white rounded-lg border p-6 mt-8">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Current Generation Agents</h2>
+        <p class="text-gray-600 text-sm mb-6">Each card represents an AI agent in the current generation. Watch them learn and evolve in real-time.</p>
+        
+        <div class="bg-gray-50 rounded-lg p-4">
+          <!-- Agent Legend -->
+          <div class="bg-white rounded-md p-4 mb-6 border border-gray-200">
+            <div class="text-xs font-semibold text-gray-700 mb-3 text-center">Agent Status & Performance Guide</div>
+            <div class="flex justify-center gap-6 text-xs">
+              <!-- Status Legend -->
+              <div class="flex items-center gap-2">
+                <div class="w-3 h-3 bg-green-100 border-2 border-green-500 rounded"></div>
+                <span class="text-gray-600">Active</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="w-3 h-3 bg-red-100 border-2 border-red-500 rounded"></div>
+                <span class="text-gray-600">Completed</span>
+              </div>
+              
+              <!-- Score Performance Legend -->
+              <div class="border-l border-gray-300 pl-4 ml-2">
+                <div class="flex gap-3">
+                  <div class="flex items-center gap-1">
+                    <div class="w-3 h-2 bg-green-600 rounded-sm"></div>
+                    <span class="text-gray-500">Best</span>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <div class="w-3 h-2 bg-yellow-500 rounded-sm"></div>
+                    <span class="text-gray-500">Average</span>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <div class="w-3 h-2 bg-red-500 rounded-sm"></div>
+                    <span class="text-gray-500">Poor</span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Copy Button Info -->
+              <div class="border-l border-gray-300 pl-4 ml-2">
+                <div class="flex items-center gap-1">
+                  <div class="bg-indigo-500 text-white text-xs px-2 py-0.5 rounded text-center font-medium">Copy</div>
+                  <span class="text-gray-500">Export State</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div id="agents-list" class="flex flex-wrap gap-4 justify-center min-h-[100px] items-center"></div>
+        </div>
+          </div>
+        </div>
       </div>
 
-      <!-- Page Navigation -->
-    </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module" src="js/main.js"></script>
+  </body>
+</html>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- This page also uses main.js, which detects the page and runs the simulation -->
