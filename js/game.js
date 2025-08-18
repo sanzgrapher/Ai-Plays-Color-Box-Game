@@ -189,6 +189,10 @@ export class Game {
         }
         ui.renderAgents(this.activeGames);
         ui.updateAIStats(this.generation, aliveCount, this.highScore);
+        
+        // Update distribution score strip with live agent scores
+        const liveAgentScores = this.activeGames.map(g => g.score);
+        ui.updateDistributionScoreStrip(liveAgentScores);
 
         if (aliveCount === 0 && this.activeGames.length > 0) {
             clearInterval(this.gameLoopInterval); this.gameLoopInterval = null;
@@ -198,6 +202,10 @@ export class Game {
             this.genHighScoreData.push({ generation: this.generation, highScore: this.highScore });
             this.genAvgScoreData.push({ generation: this.generation, avgScore: avgScore });
             this.updateChart();
+            
+            // Update score strips below charts
+            ui.updateGenerationScoreStrip(this.genHighScoreData.map(d => d.highScore));
+            ui.updateDistributionScoreStrip(this.agentScoresData);
             // Set Champion, Robust, and Weakest Model Output
             if (this.activeGames.length > 0) {
                 // Champion: highest score ever
