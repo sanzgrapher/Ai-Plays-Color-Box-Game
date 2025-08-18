@@ -9,17 +9,36 @@
   </head>
   <body class="bg-gray-50 font-sans">
     
-    <!-- Header with AI Stats -->
-    <header class="bg-white border-b">
-      <div class="max-w-full px-6 py-4">
-        <div class="flex items-center justify-between">
-          <h1 class="text-2xl font-bold text-gray-900">AI Trainer</h1>
+    <!-- Application Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
           
-          <!-- Mode Switch -->
-          <div class="flex bg-gray-100 rounded-lg p-1">
-            <a href="player.html" class="px-4 py-2 text-gray-600 hover:bg-white hover:shadow-sm rounded">Player</a>
-            <button class="px-4 py-2 bg-blue-600 text-white rounded shadow-sm">AI Training</button>
+          <!-- Logo & Brand -->
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 4a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1V8zm8 0a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V8zm0 4a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1v-2z" clip-rule="evenodd"></path>
+              </svg>
+            </div>
+            <div>
+              <h1 class="text-xl font-bold text-gray-900">AI Game Trainer</h1>
+              <p class="text-xs text-gray-500">Neural Evolution Platform</p>
+            </div>
           </div>
+
+          <!-- Navigation -->
+          <nav class="flex items-center gap-1">
+            <a href="player.html" class="px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors text-sm font-medium">
+              🎮 Player Mode
+            </a>
+            <a href="ai_trainer.html" class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-sm text-sm font-medium">
+              🧠 AI Training
+            </a>
+            <a href="compare.html" class="px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors text-sm font-medium">
+              📊 Compare
+            </a>
+          </nav>
         </div>
       </div>
     </header>
