@@ -4,178 +4,165 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Evolutionary Block Puzzle AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="style.css" />
-    <style>
-      body {
-        font-family: "Segoe UI", Arial, sans-serif;
-        background: linear-gradient(120deg, #e0eafc 0%, #cfdef3 100%);
-        margin: 0;
-        min-height: 100vh;
-      }
-      .landing {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        min-height: 100vh;
-      }
-      .title {
-        font-size: 2.8rem;
-        font-weight: 700;
-        color: #3498db;
-        margin-bottom: 0.5em;
-        letter-spacing: 2px;
-      }
-      .desc {
-        font-size: 1.2rem;
-        color: #444;
-        max-width: 600px;
-        text-align: center;
-        margin-bottom: 2em;
-      }
-      .actions {
-        display: flex;
-        gap: 1.5em;
-        margin-bottom: 2em;
-      }
-      .action-btn {
-        padding: 0.8em 2em;
-        font-size: 1.1rem;
-        border-radius: 30px;
-        border: none;
-        background: linear-gradient(90deg, #3498db 60%, #9b59b6 100%);
-        color: #fff;
-        font-weight: 600;
-        cursor: pointer;
-        box-shadow: 0 2px 8px rgba(52, 152, 219, 0.12);
-        transition: background 0.2s, transform 0.2s;
-      }
-      .action-btn:hover {
-        background: linear-gradient(90deg, #9b59b6 60%, #3498db 100%);
-        transform: translateY(-2px) scale(1.04);
-      }
-      .features {
-        display: flex;
-        gap: 2em;
-        flex-wrap: wrap;
-        justify-content: center;
-        margin-bottom: 2em;
-      }
-      .feature {
-        background: #fff;
-        border-radius: 18px;
-        box-shadow: 0 2px 12px rgba(52, 152, 219, 0.08);
-        padding: 1.2em 1.5em;
-        min-width: 220px;
-        max-width: 260px;
-        text-align: center;
-      }
-      .feature-title {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #9b59b6;
-        margin-bottom: 0.5em;
-      }
-      .feature-desc {
-        font-size: 0.98rem;
-        color: #555;
-      }
-      .footer {
-        text-align: center;
-        color: #aaa;
-        font-size: 0.95rem;
-        margin-top: 2em;
-      }
-    </style>
   </head>
-  <body>
-    <div class="landing">
-      <div class="title">Evolutionary Block Puzzle AI</div>
-      <div class="desc">
-        Experience a modern block puzzle game powered by evolutionary AI.<br />
-        Watch 50 agents compete, evolve, and learn to solve the puzzle.
-        Visualize generations, high scores, and agent strategies in real time.
+  <body class="bg-gray-50 font-sans">
+    <!-- Application Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+          <!-- Logo & Brand -->
+          <div class="flex items-center gap-3">
+            <div
+              class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center"
+            >
+              <svg
+                class="w-5 h-5 text-white"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 4a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1V8zm8 0a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V8zm0 4a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1v-2z"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
+            </div>
+            <div>
+              <h1 class="text-xl font-bold text-gray-900">AI Game Trainer</h1>
+              <p class="text-xs text-gray-500">Neural Evolution Platform</p>
+            </div>
+          </div>
+          <!-- Navigation -->
+          <nav class="flex items-center gap-1">
+            <a
+              href="player.html"
+              class="px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors text-sm font-medium"
+              >🎮 Player Mode</a
+            >
+            <a
+              href="ai_trainer.html"
+              class="px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors text-sm font-medium"
+              >🧠 AI Training</a
+            >
+            <a
+              href="compare.html"
+              class="px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors text-sm font-medium"
+              >📊 Compare</a
+            >
+          </nav>
+        </div>
       </div>
-      <div class="actions">
-        <a class="action-btn" href="player.html">Play Yourself</a>
-        <a class="action-btn" href="ai_trainer.html">Watch AI Evolve</a>
-      </div>
-      <div class="features">
-        <div class="feature">
-          <div class="feature-title">AI Evolution</div>
-          <div class="feature-desc">
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-10 space-y-12">
+      <!-- Hero Section -->
+      <section class="text-center space-y-6">
+        <h2
+          class="text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600"
+        >
+          Evolutionary Block Puzzle AI
+        </h2>
+        <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+          Experience a modern block puzzle game powered by evolutionary AI.
+          Watch agents compete, evolve, and learn to solve the puzzle. Visualize
+          generations, high scores, and strategies in real time — or jump in and
+          play yourself.
+        </p>
+        <div class="flex flex-wrap justify-center gap-4">
+          <a
+            href="player.html"
+            class="px-6 py-3 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-500 transition text-sm font-semibold"
+            >Play Yourself</a
+          >
+          <a
+            href="ai_trainer.html"
+            class="px-6 py-3 bg-purple-600 text-white rounded-lg shadow hover:bg-purple-500 transition text-sm font-semibold"
+            >Watch AI Evolve</a
+          >
+        </div>
+      </section>
+
+      <!-- Features -->
+      <section class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="bg-white border rounded-xl p-5 shadow-sm">
+          <h3 class="text-sm font-semibold text-purple-600 mb-2">
+            AI Evolution
+          </h3>
+          <p class="text-sm text-gray-600">
             Observe 50 agents learning and improving over generations.
-          </div>
+          </p>
         </div>
-        <div class="feature">
-          <div class="feature-title">Live Visualization</div>
-          <div class="feature-desc">
-            See agent boards, choices, and high score charts update in real
-            time.
-          </div>
+        <div class="bg-white border rounded-xl p-5 shadow-sm">
+          <h3 class="text-sm font-semibold text-blue-600 mb-2">
+            Live Visualization
+          </h3>
+          <p class="text-sm text-gray-600">
+            See boards, choices, and high score charts update in real time.
+          </p>
         </div>
-        <div class="feature">
-          <div class="feature-title">Interactive Play</div>
-          <div class="feature-desc">
-            Switch between AI and player mode, copy agent states, and more.
-          </div>
+        <div class="bg-white border rounded-xl p-5 shadow-sm">
+          <h3 class="text-sm font-semibold text-pink-600 mb-2">
+            Interactive Play
+          </h3>
+          <p class="text-sm text-gray-600">
+            Switch modes, compare models, copy agent states, and more.
+          </p>
         </div>
-      </div>
+      </section>
 
-      <!-- SHAPES SECTION -->
-      <div class="shapes-section" style="margin: 2em 0; text-align: center">
-        <h2>All Shapes in the Game</h2>
-        <div
-          id="shapes-list"
-          style="
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 2em;
-          "
-        ></div>
-      </div>
+      <!-- Shapes Showcase -->
+      <section class="bg-white border rounded-xl p-6 shadow-sm">
+        <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
+          <h3 class="text-lg font-semibold text-gray-900">
+            All Shapes in the Game
+          </h3>
+          <span
+            class="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700"
+            id="shape-count-badge"
+          ></span>
+        </div>
+        <div id="shapes-list" class="flex flex-wrap gap-4"></div>
+      </section>
+    </main>
 
-      <div class="footer">
-        &copy; 2025 Evolutionary Block Puzzle AI &mdash; Made with ❤️
-      </div>
-      <script type="module">
-        import { SHAPES } from "./js/constants.js";
-        function renderShapes() {
-          const shapesList = document.getElementById("shapes-list");
-          shapesList.innerHTML = "";
-          SHAPES.forEach((shape) => {
-            const shapeDiv = document.createElement("div");
-            shapeDiv.style.display = "inline-block";
-            shapeDiv.style.background = "#fff";
-            shapeDiv.style.borderRadius = "12px";
-            shapeDiv.style.boxShadow = "0 2px 8px rgba(52,152,219,0.08)";
-            shapeDiv.style.padding = "1em";
-            shapeDiv.style.margin = "0.5em";
-            shapeDiv.style.minWidth = "120px";
-            shapeDiv.style.textAlign = "center";
-            shapeDiv.innerHTML = `<div style="font-weight:600;color:${shape.color};margin-bottom:0.5em;">${shape.name}</div>`;
-            // Render shape layout
-            const table = document.createElement("table");
-            table.style.margin = "0 auto";
-            shape.layout.forEach((row) => {
-              const tr = document.createElement("tr");
-              row.forEach((cell) => {
-                const td = document.createElement("td");
-                td.style.width = "18px";
-                td.style.height = "18px";
-                td.style.border = "1px solid #eee";
-                td.style.background = cell ? shape.color : "transparent";
-                tr.appendChild(td);
-              });
-              table.appendChild(tr);
-            });
-            shapeDiv.appendChild(table);
-            shapesList.appendChild(shapeDiv);
-          });
-        }
-        renderShapes();
-      </script>
-    </div>
+    <footer class="py-8 text-center text-xs text-gray-500">
+      &copy; 2025 Evolutionary Block Puzzle AI — Made with ❤️
+    </footer>
+
+    <script type="module">
+      import { SHAPES } from "./js/constants.js";
+      const list = document.getElementById("shapes-list");
+      const badge = document.getElementById("shape-count-badge");
+      badge.textContent = `${SHAPES.length} Total`;
+      SHAPES.forEach((shape) => {
+        const card = document.createElement("div");
+        card.className =
+          "border rounded-lg p-3 bg-gray-50 flex flex-col items-center w-32 shadow-sm hover:shadow-md transition";
+        const title = document.createElement("div");
+        title.className =
+          "text-[11px] font-semibold mb-2 text-gray-700 text-center";
+        title.textContent = shape.name;
+        card.appendChild(title);
+        const grid = document.createElement("div");
+        grid.style.display = "grid";
+        grid.style.gridTemplateRows = `repeat(${shape.layout.length}, 10px)`;
+        grid.style.gridTemplateColumns = `repeat(${shape.layout[0].length}, 10px)`;
+        grid.style.gap = "2px";
+        shape.layout.forEach((r) =>
+          r.forEach((c) => {
+            const cell = document.createElement("div");
+            cell.style.width = "10px";
+            cell.style.height = "10px";
+            cell.style.borderRadius = "2px";
+            cell.style.background = c ? shape.color : "transparent";
+            grid.appendChild(cell);
+          })
+        );
+        card.appendChild(grid);
+        list.appendChild(card);
+      });
+    </script>
   </body>
 </html>

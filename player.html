@@ -1,24 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Player Mode - Color Box Game</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="style.css" />
-</head>
-<body class="bg-gray-50 font-sans">
-    
+  </head>
+  <body class="bg-gray-50 font-sans">
     <!-- Application Header -->
     <header class="bg-white shadow-sm border-b border-gray-200">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
-          
           <!-- Logo & Brand -->
           <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-              <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 4a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1V8zm8 0a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V8zm0 4a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1v-2z" clip-rule="evenodd"></path>
+            <div
+              class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center"
+            >
+              <svg
+                class="w-5 h-5 text-white"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 4a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1V8zm8 0a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V8zm0 4a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1v-2z"
+                  clip-rule="evenodd"
+                ></path>
               </svg>
             </div>
             <div>
@@ -26,75 +34,189 @@
               <p class="text-xs text-gray-500">Neural Evolution Platform</p>
             </div>
           </div>
-
           <!-- Navigation -->
           <nav class="flex items-center gap-1">
-            <a href="player.html" class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-sm text-sm font-medium">
-              🎮 Player Mode
-            </a>
-            <a href="ai_trainer.html" class="px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors text-sm font-medium">
-              🧠 AI Training
-            </a>
-            <a href="compare.html" class="px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors text-sm font-medium">
-              📊 Compare
-            </a>
+            <a
+              href="player.html"
+              class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-sm text-sm font-medium"
+              >🎮 Player Mode</a
+            >
+            <a
+              href="ai_trainer.html"
+              class="px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors text-sm font-medium"
+              >🧠 AI Training</a
+            >
+            <a
+              href="compare.html"
+              class="px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors text-sm font-medium"
+              >📊 Compare</a
+            >
           </nav>
         </div>
       </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto p-6">
-        <div class="game-container">
-        <div id="game-over-overlay" class="hidden">
-            <div>Game Over!</div>
-            <div id="final-score"></div>
-            <button id="reset-button">Play Again</button>
-        </div>
-        
-        <!-- The main game board -->
-       <div id="game-board" class="game-board grid-8x8"></div>
-
-        <!-- Right-side panel for all player controls -->
-        <div class="right-panel">
-            <div id="player-view">
-                <div id="shapes-container"></div>
-                
-                <div id="score-container" class="score-container">
-                    <h2>Score: <span id="score">0</span></h2>
-                </div>
-                
-                <div class="hint-container">
-                    <button id="hint-button" disabled>Get AI Hint</button>
-                </div>
-                
-                <div id="model-loader-container">
-                    <h4>AI Hint Engine</h4>
-                    <div class="model-input-group">
-                        <label for="model-a-input">Model A:</label>
-                        <textarea id="model-a-input" rows="4" placeholder="Paste trained model A..."></textarea>
-                    </div>
-                    <div class="model-input-group">
-                        <label for="model-b-input">Model B:</label>
-                        <textarea id="model-b-input" rows="4" placeholder="Paste trained model B..."></textarea>
-                    </div>
-                    <button id="load-models-btn">Load Models</button>
-                    <div id="model-selection-container" class="hidden">
-                        <label><input type="radio" name="active-model" value="A" checked> Use Model A</label>
-                        <label><input type="radio" name="active-model" value="B"> Use Model B</label>
-                    </div>
-                </div>
-                
-                 <div class="mode-switch">
-                    <button class="active">Player Mode</button>
-                    <a href="ai_trainer.html"><button>Go to AI Training</button></a>
-                </div>
+    <main class="max-w-7xl mx-auto p-4 lg:p-6" id="player-view">
+      <!-- Unified Layout: Board (left) / Control Column (right) -->
+      <div
+        class="flex flex-col lg:flex-row gap-4 lg:gap-6 h-[calc(100vh-6rem)]"
+      >
+        <!-- Board Area -->
+        <div
+          class="flex-1 bg-white border rounded-xl shadow-sm p-4 lg:p-6 relative flex flex-col"
+        >
+          <div class="flex items-center justify-between mb-4">
+            <h2
+              class="text-base font-semibold text-gray-800 flex items-center gap-2"
+            >
+              🎮 Game Board
+            </h2>
+            <div class="flex items-center gap-3 text-xs">
+              <div class="flex items-center gap-1 font-mono">
+                <span class="text-gray-500">Score</span
+                ><span id="score" class="font-bold text-gray-900">0</span>
+              </div>
+              <button
+                id="hint-button"
+                disabled
+                class="px-2 py-1 rounded-md bg-slate-200 text-slate-600 font-semibold text-[11px] disabled:opacity-50 disabled:cursor-not-allowed hover:enabled:bg-blue-600 hover:enabled:text-white transition"
+              >
+                Best Move
+              </button>
             </div>
+          </div>
+          <div
+            id="game-over-overlay"
+            class="hidden absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/70 text-white rounded-xl"
+          >
+            <div class="text-3xl font-bold">Game Over!</div>
+            <div id="final-score" class="mt-2 text-xl"></div>
+            <button
+              id="reset-button"
+              class="mt-5 px-5 py-2 bg-red-600 hover:bg-red-500 rounded-lg text-sm font-semibold"
+            >
+              Play Again
+            </button>
+          </div>
+          <div class="flex-1 flex items-center justify-center overflow-hidden">
+            <div id="game-board" class="game-board grid-8x8"></div>
+          </div>
+          <!-- Shapes below board (compact) -->
+          <div class="mt-4">
+            <h3 class="text-xs font-semibold text-gray-600 mb-2 tracking-wide">
+              Current Shapes
+            </h3>
+            <div
+              id="shapes-container"
+              class="flex flex-wrap justify-center gap-3 min-h-[120px] max-h-[150px] overflow-y-auto"
+            ></div>
+          </div>
         </div>
-    </div>
+        <!-- Control Column -->
+        <div class="w-full lg:w-72 xl:w-80 flex flex-col gap-4">
+          <!-- Model Loader (collapsible) -->
+          <div class="bg-white border rounded-xl shadow-sm">
+            <div
+              class="flex items-center justify-between px-4 py-3 cursor-pointer select-none"
+              id="model-loader-toggle"
+            >
+              <h3
+                class="text-sm font-semibold text-gray-700 flex items-center gap-2"
+              >
+                🧠 Models
+              </h3>
+              <span id="model-loader-icon" class="text-xs text-gray-500"
+                >Hide</span
+              >
+            </div>
+            <div id="model-loader-container" class="px-4 pb-4 space-y-3">
+              <div>
+                <label
+                  for="model-a-input"
+                  class="block text-[11px] font-medium text-gray-600 mb-1"
+                  >Model A</label
+                >
+                <textarea
+                  id="model-a-input"
+                  rows="3"
+                  placeholder="JSON weights"
+                  class="w-full text-[11px] font-mono border rounded p-2 focus:outline-none focus:ring focus:ring-blue-200"
+                ></textarea>
+              </div>
+              <div>
+                <label
+                  for="model-b-input"
+                  class="block text-[11px] font-medium text-gray-600 mb-1"
+                  >Model B</label
+                >
+                <textarea
+                  id="model-b-input"
+                  rows="3"
+                  placeholder="JSON weights"
+                  class="w-full text-[11px] font-mono border rounded p-2 focus:outline-none focus:ring focus:ring-blue-200"
+                ></textarea>
+              </div>
+              <button
+                id="load-models-btn"
+                class="w-full px-3 py-2 bg-green-600 hover:bg-green-500 text-white rounded-md text-xs font-semibold transition"
+              >
+                Load Models
+              </button>
+              <div
+                id="model-selection-container"
+                class="hidden flex items-center justify-center gap-4 text-[11px] text-gray-600"
+              >
+                <label class="flex items-center gap-1 cursor-pointer"
+                  ><input
+                    type="radio"
+                    name="active-model"
+                    value="A"
+                    checked
+                    class="accent-blue-600"
+                  />A</label
+                >
+                <label class="flex items-center gap-1 cursor-pointer"
+                  ><input
+                    type="radio"
+                    name="active-model"
+                    value="B"
+                    class="accent-blue-600"
+                  />B</label
+                >
+              </div>
+            </div>
+          </div>
+          <!-- Actions -->
+          <div class="bg-white border rounded-xl shadow-sm p-4 space-y-3">
+            <a
+              href="ai_trainer.html"
+              class="w-full inline-block text-center px-3 py-2 bg-slate-100 hover:bg-slate-200 rounded-md text-xs font-semibold text-slate-700"
+              >Go To AI Training</a
+            >
+            <a
+              href="compare.html"
+              class="w-full inline-block text-center px-3 py-2 bg-slate-100 hover:bg-slate-200 rounded-md text-xs font-semibold text-slate-700"
+              >Compare Models</a
+            >
+          </div>
+        </div>
+      </div>
     </main>
-    
-    <!-- This page only needs main.js to run the controller -->
+    <script>
+      // Simple collapse logic (no module interference)
+      document.addEventListener("DOMContentLoaded", () => {
+        const toggle = document.getElementById("model-loader-toggle");
+        const container = document.getElementById("model-loader-container");
+        const icon = document.getElementById("model-loader-icon");
+        if (toggle && container && icon) {
+          toggle.addEventListener("click", () => {
+            const hidden = container.classList.toggle("hidden");
+            icon.textContent = hidden ? "Show" : "Hide";
+          });
+        }
+      });
+    </script>
+
     <script type="module" src="js/main.js"></script>
-</body>
+  </body>
 </html>

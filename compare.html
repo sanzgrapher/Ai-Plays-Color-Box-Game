@@ -8,17 +8,25 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body class="bg-gray-50 font-sans">
-    
     <!-- Application Header -->
     <header class="bg-white shadow-sm border-b border-gray-200">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
-          
           <!-- Logo & Brand -->
           <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-              <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 4a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1V8zm8 0a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V8zm0 4a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1v-2z" clip-rule="evenodd"></path>
+            <div
+              class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center"
+            >
+              <svg
+                class="w-5 h-5 text-white"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 4a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1V8zm8 0a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V8zm0 4a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1v-2z"
+                  clip-rule="evenodd"
+                ></path>
               </svg>
             </div>
             <div>
@@ -26,125 +34,235 @@
               <p class="text-xs text-gray-500">Neural Evolution Platform</p>
             </div>
           </div>
-
           <!-- Navigation -->
           <nav class="flex items-center gap-1">
-            <a href="player.html" class="px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors text-sm font-medium">
-              🎮 Player Mode
-            </a>
-            <a href="ai_trainer.html" class="px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors text-sm font-medium">
-              🧠 AI Training
-            </a>
-            <a href="compare.html" class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-sm text-sm font-medium">
-              📊 Compare
-            </a>
+            <a
+              href="player.html"
+              class="px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors text-sm font-medium"
+              >🎮 Player Mode</a
+            >
+            <a
+              href="ai_trainer.html"
+              class="px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors text-sm font-medium"
+              >🧠 AI Training</a
+            >
+            <a
+              href="compare.html"
+              class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-sm text-sm font-medium"
+              >📊 Compare</a
+            >
           </nav>
         </div>
       </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto p-6">
-      <h2 class="text-2xl font-bold text-gray-900 mb-6">AI Model Comparison</h2>
+    <main class="max-w-7xl mx-auto p-4 lg:p-6 space-y-6">
+      <h2 class="text-xl font-bold text-gray-900 flex items-center gap-3">
+        📊 AI Model Comparison
+        <span class="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full"
+          >Evaluate</span
+        >
+      </h2>
 
-    <div class="controls-panel">
-      <div class="model-input-group">
-        <label for="model-a-input">Model A:</label>
-        <textarea
-          id="model-a-input"
-          rows="5"
-          placeholder="Paste model A weights here..."
-        ></textarea>
-      </div>
-      <div class="model-input-group">
-        <label for="model-b-input">Model B:</label>
-        <textarea
-          id="model-b-input"
-          rows="5"
-          placeholder="Paste model B weights here..."
-        ></textarea>
-      </div>
-      <div class="control-group">
-        <label for="game-count-input">Number of Games to Run:</label>
-        <input
-          type="number"
-          id="game-count-input"
-          value="5"
-          min="1"
-          max="1000"
-        />
-      </div>
-      <div class="control-group">
-        <label>Simulation Controls:</label>
-        <div class="button-group">
-          <button id="start-comparison-btn">Start Comparison</button>
-          <button id="speed-toggle">Speed: 1x</button>
-          <button id="pause-toggle">Pause</button>
+      <!-- Simulation First -->
+      <section class="grid md:grid-cols-2 gap-4 lg:gap-6">
+        <!-- Model A -->
+        <div
+          class="bg-white border rounded-xl shadow-sm p-4 relative flex flex-col"
+        >
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-sm font-semibold text-gray-700">🤖 Model A</h3>
+            <div
+              id="score-container-a"
+              class="text-[11px] font-semibold text-gray-600"
+            >
+              Score: <span>0</span>
+            </div>
+          </div>
+          <div id="shape-panel-a" class="mb-3">
+            <div class="text-[10px] font-medium text-gray-500 mb-1">
+              Shape Batch
+            </div>
+            <div
+              class="shape-container flex items-center gap-1 min-h-[40px]"
+            ></div>
+          </div>
+          <div
+            class="flex-1 flex items-center justify-center relative rounded-lg overflow-hidden"
+          >
+            <div id="game-over-a" class="status-overlay hidden">Game Over!</div>
+            <div id="game-board-a" class="game-board grid-8x8"></div>
+          </div>
         </div>
-      </div>
-      <div id="progress-indicator">Load models and start comparison.</div>
-    </div>
+        <!-- Model B -->
+        <div
+          class="bg-white border rounded-xl shadow-sm p-4 relative flex flex-col"
+        >
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-sm font-semibold text-gray-700">🤖 Model B</h3>
+            <div
+              id="score-container-b"
+              class="text-[11px] font-semibold text-gray-600"
+            >
+              Score: <span>0</span>
+            </div>
+          </div>
+          <div id="shape-panel-b" class="mb-3">
+            <div class="text-[10px] font-medium text-gray-500 mb-1">
+              Shape Batch
+            </div>
+            <div
+              class="shape-container flex items-center gap-1 min-h-[40px]"
+            ></div>
+          </div>
+          <div
+            class="flex-1 flex items-center justify-center relative rounded-lg overflow-hidden"
+          >
+            <div id="game-over-b" class="status-overlay hidden">Game Over!</div>
+            <div id="game-board-b" class="game-board grid-8x8"></div>
+          </div>
+        </div>
+      </section>
 
-    <div class="battle-ground">
-      <div class="model-column">
-        <h2>Model A</h2>
-        <div id="score-container-a" class="score-container">
-          Current Score: <span>0</span>
+      <!-- Settings Below Simulation -->
+      <section class="bg-white border rounded-xl shadow-sm p-5">
+        <h3
+          class="text-sm font-semibold text-gray-800 mb-4 flex items-center gap-2"
+        >
+          ⚙️ Simulation Settings
+        </h3>
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div class="space-y-3 lg:col-span-2">
+            <div>
+              <label
+                for="model-a-input"
+                class="block text-xs font-semibold text-gray-600 mb-1"
+                >Model A Weights (JSON)</label
+              >
+              <textarea
+                id="model-a-input"
+                rows="4"
+                placeholder="[{...}]"
+                class="w-full text-xs font-mono border rounded p-2 focus:outline-none focus:ring focus:ring-blue-200"
+              ></textarea>
+            </div>
+            <div>
+              <label
+                for="model-b-input"
+                class="block text-xs font-semibold text-gray-600 mb-1"
+                >Model B Weights (JSON)</label
+              >
+              <textarea
+                id="model-b-input"
+                rows="4"
+                placeholder="[{...}]"
+                class="w-full text-xs font-mono border rounded p-2 focus:outline-none focus:ring focus:ring-blue-200"
+              ></textarea>
+            </div>
+          </div>
+          <div class="space-y-4">
+            <div>
+              <label
+                for="game-count-input"
+                class="block text-xs font-semibold text-gray-600 mb-1"
+                >Games</label
+              >
+              <input
+                type="number"
+                id="game-count-input"
+                value="5"
+                min="1"
+                max="1000"
+                class="w-full border rounded p-2 text-xs focus:outline-none focus:ring focus:ring-blue-200"
+              />
+            </div>
+            <div class="space-y-2">
+              <div class="text-[11px] font-semibold text-gray-600">Speed</div>
+              <button
+                id="speed-toggle"
+                class="w-full px-3 py-2 border rounded-md text-xs bg-slate-50 hover:bg-slate-100"
+              >
+                Speed: 1x
+              </button>
+            </div>
+            <div class="space-y-2">
+              <div class="text-[11px] font-semibold text-gray-600">
+                Pause / Resume
+              </div>
+              <button
+                id="pause-toggle"
+                class="w-full px-3 py-2 border rounded-md text-xs bg-slate-50 hover:bg-slate-100"
+              >
+                Pause
+              </button>
+            </div>
+          </div>
+          <div class="flex flex-col justify-between gap-4">
+            <button
+              id="start-comparison-btn"
+              class="w-full px-4 py-3 bg-blue-600 text-white rounded-md text-xs font-semibold hover:bg-blue-500 transition"
+            >
+              Start
+            </button>
+            <div
+              id="progress-indicator"
+              class="text-[11px] font-mono text-blue-600 bg-blue-50 border border-blue-200 rounded p-2"
+            >
+              Load models and start comparison.
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-[11px]">
+              <a
+                href="player.html"
+                class="px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded text-center"
+                >Player</a
+              >
+              <a
+                href="ai_trainer.html"
+                class="px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded text-center"
+                >Trainer</a
+              >
+            </div>
+          </div>
         </div>
-        <div id="shape-panel-a" class="shape-panel">
-          <h4>Shape Batch</h4>
-          <div class="shape-container"></div>
-        </div>
-        <div class="board-wrapper">
-          <div id="game-over-a" class="status-overlay hidden">Game Over!</div>
-          <div id="game-board-a" class="game-board grid-8x8"></div>
-        </div>
-      </div>
-      <div class="model-column">
-        <h2>Model B</h2>
-        <div id="score-container-b" class="score-container">
-          Current Score: <span>0</span>
-        </div>
-        <div id="shape-panel-b" class="shape-panel">
-          <h4>Shape Batch</h4>
-          <div class="shape-container"></div>
-        </div>
-        <div class="board-wrapper">
-          <div id="game-over-b" class="status-overlay hidden">Game Over!</div>
-          <div id="game-board-b" class="game-board grid-8x8"></div>
-        </div>
-      </div>
-    </div>
+      </section>
 
-    <div class="full-width-container chart-wrapper">
-      <h3>Model Score Per Game</h3>
-      <canvas id="comparisonChart"></canvas>
-      <h3>Model Average Score Per Game</h3>
-      <canvas id="averageScoreChart"></canvas>
-      <button id="copy-chart-data-btn" style="margin-top: 1em">
-        Copy Chart Data as JSON
-      </button>
-      <div
-        id="model-insights"
-        style="
-          margin-top: 2em;
-          padding: 1em;
-          background: #f8f9fa;
-          border-radius: 8px;
-          border: 1px solid #eee;
-          font-size: 1.05em;
-        "
-      ></div>
-    </div>
-
-    <div class="mode-switch full-width-switch">
-      <button id="switch-to-player-mode" class="action-btn">
-        Switch to Player Mode
-      </button>
-      <button id="switch-to-ai-mode" class="action-btn">
-        Switch to AI Mode
-      </button>
-    </div>
+      <!-- Charts Side by Side -->
+      <section class="grid lg:grid-cols-2 gap-4 lg:gap-6">
+        <div class="bg-white border rounded-xl shadow-sm p-5 flex flex-col">
+          <h3
+            class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2"
+          >
+            📈 Score per Game
+            <span
+              class="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full"
+              >Live</span
+            >
+          </h3>
+          <div class="flex-1">
+            <canvas id="comparisonChart" class="w-full h-60"></canvas>
+          </div>
+        </div>
+        <div class="bg-white border rounded-xl shadow-sm p-5 flex flex-col">
+          <h3 class="text-sm font-semibold text-gray-700 mb-3">
+            📊 Average Score
+          </h3>
+          <div class="flex-1">
+            <canvas id="averageScoreChart" class="w-full h-60"></canvas>
+          </div>
+          <div class="mt-4 flex flex-wrap items-center gap-3">
+            <button
+              id="copy-chart-data-btn"
+              class="px-3 py-1.5 bg-slate-800 text-white text-[11px] rounded-md hover:bg-slate-700"
+            >
+              Copy Data
+            </button>
+            <div
+              id="model-insights"
+              class="text-[11px] bg-gray-50 border border-gray-200 rounded p-2 flex-1 min-h-[60px]"
+            ></div>
+          </div>
+        </div>
+      </section>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
